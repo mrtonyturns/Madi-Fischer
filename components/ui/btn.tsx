@@ -6,10 +6,9 @@ import { cn } from "@/lib/utils";
  * The site's button system — "leaf". Shape, colour and motion all live in the
  * `.btn-*` classes in app/globals.css; this file only picks a variant.
  *
- * The leaf shape carries the affordance on its own, so there is no arrow disc
- * on the buttons any more — the riverstone version needed one, this does not.
- * `trail` is the exception: it is a text link, not a leaf, and its arrow is
- * what marks it as going somewhere.
+ * The arrow is bare — the riverstone version sat it in a filled disc, which
+ * the leaf has no room for. Pass `arrow={false}` on anything that isn't going
+ * somewhere (a form submit, a CTA sitting beside another one).
  *
  * Variants:
  *   stone    — primary on dark grounds (flat bone)
@@ -53,10 +52,7 @@ function Arrow() {
 interface BtnOwnProps {
   variant?: BtnVariant;
   size?: BtnSize;
-  /**
-   * Draw the trailing arrow. Only `trail` renders one — the leaf buttons
-   * ignore it, so callers that still pass it are harmless.
-   */
+  /** Draw the trailing arrow. */
   arrow?: boolean;
   className?: string;
   children: React.ReactNode;
@@ -88,7 +84,7 @@ export function Btn({
   const body = (
     <>
       {children}
-      {variant === "trail" && arrow ? <Arrow /> : null}
+      {arrow ? <Arrow /> : null}
     </>
   );
 
