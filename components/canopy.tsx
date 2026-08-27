@@ -191,34 +191,3 @@ export function MonsteraLeaf({
     </g>
   );
 }
-
-/**
- * The organic edge that separates the hero from the page below — a soft,
- * uneven ridge rather than a straight seam or a symmetrical "wave divider",
- * which is where these usually turn corny.
- */
-export function RidgeEdge({
-  className,
-  fill = "var(--background)",
-  flip = false,
-}: {
-  className?: string;
-  fill?: string;
-  /** Point the ridge downward, for the bottom of a light section. */
-  flip?: boolean;
-}) {
-  return (
-    <svg
-      viewBox="0 0 1440 120"
-      preserveAspectRatio="none"
-      className={className}
-      aria-hidden
-      style={flip ? { transform: "scaleY(-1)" } : undefined}
-    >
-      <path
-        d="M0 120V74c118-26 216-9 331 16 96 21 178 27 268 6 104-24 175-64 292-72 112-8 210 22 320 44 82 16 155 18 229 4v48Z"
-        fill={fill}
-      />
-    </svg>
-  );
-}

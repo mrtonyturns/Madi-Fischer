@@ -5,7 +5,6 @@ import { Item, Lift, Reveal, Stagger } from "@/components/animate";
 import { AreaMap } from "@/components/area-map";
 import { BookButton, BookingCalendar } from "@/components/booking";
 import { Logo } from "@/components/brand";
-import { RidgeEdge } from "@/components/canopy";
 import { ContactForm } from "@/components/contact-form";
 import { Hero } from "@/components/hero";
 import { Highlights } from "@/components/highlights";
@@ -115,11 +114,6 @@ export default async function Home({
           the moment you scroll. Change one and change the other.
         */}
         <div className="relative z-10 -mt-[55svh]">
-          <RidgeEdge
-            className="block h-[70px] w-full sm:h-[110px]"
-            fill="var(--background)"
-          />
-
           {/* Stats band — the first thing the rising ground reveals. */}
           <section className="bg-background">
             <div className="mx-auto max-w-7xl px-5 py-20 sm:px-8 sm:py-24">
@@ -285,12 +279,7 @@ export default async function Home({
             id="know"
             className={`${ANCHOR} topo relative overflow-hidden bg-canopy-deep`}
           >
-            {/* The same ridge that closes the hero, reused as this section's edge. */}
-            <RidgeEdge
-              className="absolute inset-x-0 top-0 block h-[60px] w-full sm:h-[90px]"
-              fill="var(--secondary)"
-            />
-            <div className="relative z-10 mx-auto max-w-7xl px-5 pt-28 pb-20 sm:px-8 sm:pt-36 sm:py-28">
+            <div className="relative z-10 mx-auto max-w-7xl px-5 py-20 sm:px-8 sm:py-28">
               <KnowNotes
                 eyebrow={t.know.eyebrow}
                 title={t.know.title}

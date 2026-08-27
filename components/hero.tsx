@@ -190,6 +190,13 @@ function Stage({
           viewBox="0 0 1440 500"
           preserveAspectRatio="xMidYMin slice"
           className="h-full w-full text-canopy-deep/55"
+          /* The fronds are deliberately drawn past the edges of their own
+             viewBox so they read as branches continuing off-frame. An SVG root
+             clips to its viewport by default, which turned that into a hard
+             straight cut mid-blade. Let it spill — the sticky stage above
+             still clips everything at the edge of the screen, which is the
+             only place a frond should end. */
+          style={{ overflow: "visible" }}
         >
           <g transform="translate(-40, 30) rotate(28)">
             <PalmFrond length={430} arch={140} bladeLength={120} blades={26} />
@@ -222,6 +229,7 @@ function Stage({
             viewBox="0 0 700 620"
             preserveAspectRatio="xMinYMin meet"
             className="h-full w-full text-canopy-deep/85 blur-[2px] drop-shadow-[0_18px_36px_rgba(0,0,0,0.35)]"
+            style={{ overflow: "visible" }}
           >
             <g transform="translate(-20, 40) rotate(34)">
               <PalmFrond
@@ -261,6 +269,7 @@ function Stage({
             viewBox="0 0 700 620"
             preserveAspectRatio="xMaxYMin meet"
             className="h-full w-full text-canopy-deep/85 blur-[2px] drop-shadow-[0_18px_36px_rgba(0,0,0,0.35)]"
+            style={{ overflow: "visible" }}
           >
             <g transform="translate(720, 30) rotate(146)">
               <PalmFrond
