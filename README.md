@@ -1,36 +1,120 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
+# Fischer Tropitel
 
-## Getting Started
+Marketing site for three jungle casa rentals on a private mountain property
+above Quepos, Costa Rica. It is a landing page whose job is to set expectations
+honestly and then hand visitors off to Airbnb to book — not a booking engine.
 
-First, run the development server:
+English and Spanish, served as static files from a Cloudflare Worker. The
+Worker itself only handles `/api/*`; everything else is a static asset.
+
+## Stack
+
+| | |
+|---|---|
+| Framework | Next.js 16 (App Router, `output: "export"`) |
+| Styling | Tailwind v4 — CSS-first, **no `tailwind.config.js`**; tokens live in `app/globals.css` |
+| Animation | Motion (`motion/react`) |
+| Hosting | Cloudflare Workers + static assets |
+| Fonts | Fraunces (display) + Fustat (UI), via `next/font` |
+
+Because the site is a static export there is **no server**: no API routes, no
+Server Actions, no middleware. Anything dynamic goes in `worker/index.ts`.
+
+## Running it
 
 ```bash
+npm ci
 npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
 ```
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+| Command | Does |
+|---|---|
+| `npm run dev` | Dev server on :3000 |
+| `npm run build` | Static export into `out/` |
+| `npm run lint` | ESLint |
+| `npm run check:worker` | Typecheck the Worker separately |
+| `npm run deploy` | Build, then `wrangler deploy` |
 
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
+`/api/*` does not exist under `npm run dev` — there is no Worker locally, so the
+contact form and the reviews endpoint return 404. That is expected. To exercise
+them, deploy, or run `npx wrangler dev`.
 
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
+## Where things live
 
-## Learn More
+```
+app/[locale]/          the site. This is the ROOT layout — it renders <html lang>
+                       per locale, which is why /es/ ships lang="es" to crawlers
+app/(redirect)/        "/" locale chooser, its own root layout
+app/globals.css        brand tokens + the button system
+lib/i18n.ts            every string on the site, both languages
+components/            hero, area map, know-notes, header, brand, buttons
+worker/index.ts        POST /api/contact, GET /api/reviews
+```
 
-To learn more about Next.js, take a look at the following resources:
+**All copy is in `lib/i18n.ts`.** Editing text means editing that file, in both
+the `en` and `es` blocks. Nothing is hard-coded in components.
 
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
+The map's geography (pin coordinates, Google Maps queries) is in
+`components/area-map.tsx` — deliberately not translated. Only the names,
+descriptions and travel times are.
 
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
+## Configuration
 
-## Deploy on Vercel
+**Build-time** (must be present when `npm run build` runs):
 
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
+| Variable | Effect |
+|---|---|
+| `NEXT_PUBLIC_SITE_URL` | Canonical/OG base. Defaults to `https://www.fischertropitel.com` |
+| `NEXT_PUBLIC_CAL_LINK` | Optional. When set, switches on a Cal.com booking section |
 
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
+**Worker vars** — plain config in `wrangler.jsonc`, not secrets:
+
+- `CONTACT_TO_EMAIL` — where enquiries are emailed
+- `CONTACT_FROM_EMAIL` — the sender
+
+**Worker secrets** — `npx wrangler secret put NAME`:
+
+| Secret | Needed for |
+|---|---|
+| `RESEND_API_KEY` | Emailing the contact form. Without it the form fails loudly |
+| `CONTACT_WEBHOOK_URL` | Alternative to Resend — a Zapier hook or CRM that takes JSON |
+| `GOOGLE_PLACES_API_KEY` | Google reviews section |
+| `GOOGLE_PLACE_ID` | Google reviews section |
+
+The reviews section renders **nothing at all** until both Google secrets are
+set and real reviews come back. That is intentional — no placeholder reviews.
+
+## Deploying
+
+```bash
+npm run deploy
+```
+
+Two things must line up first:
+
+1. **`name` in `wrangler.jsonc` must match the Worker the secrets are on.**
+   Deploying under a different name silently creates a second Worker with no
+   secrets, and the contact form will look broken.
+2. **`account_id`** — if your credentials reach more than one Cloudflare
+   account, pin it in `wrangler.jsonc` or wrangler will stop and ask.
+
+There is no custom domain or route in the config, so a deploy lands on
+`<name>.<subdomain>.workers.dev`. Pointing the real domain at it is a separate
+step.
+
+## Before this goes live
+
+- [ ] **Airbnb links are placeholders.** `AIRBNB_URLS` in `app/[locale]/page.tsx`
+      points all three casas at `airbnb.com`'s homepage. Needs the three real
+      listing URLs, in the order Casa Cascada / Loads of Toads / Casa Verde.
+- [ ] **Resend sends from `onboarding@resend.dev`**, a shared domain that lands
+      in spam more often. Move to a verified domain and update
+      `CONTACT_FROM_EMAIL`.
+- [ ] **No `geo` coordinates in the structured data** (`app/[locale]/layout.tsx`).
+      Left out rather than guessed — wrong coordinates on a lodging listing send
+      guests up the wrong mountain road.
+- [ ] **`GOOGLE_LISTING_URL`** in `app/[locale]/page.tsx` is a Google Maps name
+      search. Replace with the canonical Business Profile link.
+- [ ] Photography is documentary real-estate work — flat skies, no interiors, no
+      waterfall, no pool. The art direction compensates, but real lifestyle
+      shots would do more than any further design work.

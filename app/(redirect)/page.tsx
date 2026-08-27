@@ -1,4 +1,5 @@
 import type { Metadata } from "next";
+import Link from "next/link";
 
 /**
  * Static export has no server-side redirects, so the root page forwards to the
@@ -16,13 +17,13 @@ export default function RootRedirect() {
       <meta httpEquiv="refresh" content="0; url=/en/" />
       <main className="flex min-h-screen items-center justify-center">
         <p className="text-lg">
-          <a href="/en/" className="font-semibold underline">
+          <Link href="/en/" className="font-semibold underline">
             English
-          </a>
+          </Link>
           <span className="mx-2 text-muted-foreground">·</span>
-          <a href="/es/" className="font-semibold underline">
+          <Link href="/es/" className="font-semibold underline">
             Español
-          </a>
+          </Link>
         </p>
       </main>
     </>
