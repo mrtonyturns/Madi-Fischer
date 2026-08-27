@@ -252,17 +252,14 @@ export default async function Home({
                   <AreaMap
                     places={t.area.places}
                     labels={{
-                      all: t.area.filterAll,
-                      fishing: t.area.filterFishing,
-                      nature: t.area.filterNature,
-                      adventure: t.area.filterAdventure,
+                      fishing: t.area.catFishing,
+                      nature: t.area.catNature,
+                      adventure: t.area.catAdventure,
+                      town: t.area.catTown,
                       baseName: t.area.baseName,
-                      baseMeta: t.area.baseMeta,
                       note: t.area.note,
                       hint: t.area.hint,
                       pacific: t.area.pacific,
-                      cta: t.casas.askCta,
-                      ctaHref: "#contact",
                       directionsCta: t.area.directionsCta,
                       mapsCta: t.area.mapsCta,
                       listingUrl: GOOGLE_LISTING_URL,
@@ -341,7 +338,7 @@ export default async function Home({
                     />
                     <a
                       href={PHONE_HREF}
-                      className="font-medium hover:underline"
+                      className="-my-2 inline-block py-2 font-medium hover:underline"
                     >
                       {PHONE}
                     </a>
@@ -354,7 +351,7 @@ export default async function Home({
                     />
                     <a
                       href={`mailto:${EMAIL}`}
-                      className="font-medium hover:underline"
+                      className="-my-2 inline-block py-2 font-medium break-all hover:underline"
                     >
                       {EMAIL}
                     </a>
@@ -391,7 +388,7 @@ export default async function Home({
                 <li key={link.href}>
                   <a
                     href={link.href}
-                    className="transition-colors hover:text-cream"
+                    className="-mx-2 inline-block px-2 py-2 transition-colors hover:text-cream"
                   >
                     {link.label}
                   </a>
@@ -400,7 +397,7 @@ export default async function Home({
               <li>
                 <a
                   href={t.nav.switchHref}
-                  className="font-semibold text-sun transition-opacity hover:opacity-80"
+                  className="-mx-2 inline-block px-2 py-2 font-semibold text-sun transition-opacity hover:opacity-80"
                 >
                   {t.nav.switchLabel}
                 </a>
@@ -409,12 +406,18 @@ export default async function Home({
           </nav>
           <div className="md:text-right">
             <p>
-              <a href={PHONE_HREF} className="hover:text-cream">
+              <a
+                href={PHONE_HREF}
+                className="-my-1.5 inline-block py-1.5 hover:text-cream"
+              >
                 {PHONE}
               </a>
             </p>
             <p className="mt-1">
-              <a href={`mailto:${EMAIL}`} className="hover:text-cream">
+              <a
+                href={`mailto:${EMAIL}`}
+                className="-my-1.5 inline-block py-1.5 break-all hover:text-cream"
+              >
                 {EMAIL}
               </a>
             </p>

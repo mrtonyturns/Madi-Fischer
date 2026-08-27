@@ -15,7 +15,7 @@ export interface CasaCopy {
 export interface PlaceCopy {
   id: string;
   name: string;
-  category: "fishing" | "nature" | "adventure";
+  category: "fishing" | "nature" | "adventure" | "town";
   travel: string;
   text: string;
 }
@@ -90,13 +90,13 @@ interface Dictionary {
     eyebrow: string;
     title: string;
     sub: string;
-    /** Map chrome. */
-    filterAll: string;
-    filterFishing: string;
-    filterNature: string;
-    filterAdventure: string;
+    /** Category names. Labels on the detail card, not filters — the filter
+        pills are gone; nothing on this map is ever hidden. */
+    catFishing: string;
+    catNature: string;
+    catAdventure: string;
+    catTown: string;
     baseName: string;
-    baseMeta: string;
     pacific: string;
     note: string;
     hint: string;
@@ -264,18 +264,17 @@ export const dict: Record<Locale, Dictionary> = {
       eyebrow: "Fishing & Adventure",
       title: "We came for the fishing. We stayed for everything else.",
       sub: "Our family found Quepos on a fishing vacation and never really left. It is a fishing town first, but there is plenty here for kids and for people who have never held a rod — here's everything within reach of the gate.",
-      filterAll: "Everything",
-      filterFishing: "Fishing",
-      filterNature: "Nature",
-      filterAdventure: "Adventure",
+      catFishing: "Fishing",
+      catNature: "Nature",
+      catAdventure: "Adventure",
+      catTown: "Around town",
       baseName: "The casas",
-      baseMeta: "You are here",
       pacific: "PACIFIC",
       note: "A sketch, not a survey — the bearings are right, the distances aren't. Travel times are real ones, measured from our gate.",
       directionsCta: "Get directions",
       mapsCta: "See on Google Maps",
       listingCta: "Fischer Tropitel on Google Maps",
-      hint: "Pick a marker to see what's there and how far it is from your front door.",
+      hint: "Hover any marker to see the route from the house. Click one for what's there and directions.",
       places: [
         {
           id: "quepos-marina",
@@ -339,6 +338,41 @@ export const dict: Record<Locale, Dictionary> = {
           category: "adventure",
           travel: "1 hr 15 by car",
           text: "Two falls, the upper one dropping about 45 metres into a pool wide enough to swim across. Hike in, ride in on horseback, or take the truck. It's the longest day on this map and the one people talk about afterwards.",
+        },
+        {
+          id: "quepos-town",
+          name: "Quepos town & Saturday market",
+          category: "town",
+          travel: "25 min by car",
+          text: "Groceries, hardware, restaurants and the bank — the practical stop. On Saturday mornings the feria fills the waterfront with fruit, fish and vegetables straight off the farms.",
+        },
+        {
+          id: "damas",
+          name: "Damas Island mangroves",
+          category: "nature",
+          travel: "30 min by car",
+          text: "A boat or kayak through the estuary channels north of town. Flat water, heavy shade, and the best odds of the day for seeing monkeys, caimans and herons without walking anywhere.",
+        },
+        {
+          id: "biesanz",
+          name: "Playa Biesanz",
+          category: "nature",
+          travel: "35 min by car",
+          text: "A small sheltered cove off Quepos Point, reached down a short forest path. Calmer water than the open beaches and a fraction of the people — the swim to make when the park is busy.",
+        },
+        {
+          id: "villa-vanilla",
+          name: "Villa Vanilla spice farm",
+          category: "nature",
+          travel: "30 min by car",
+          text: "A working plantation in the hills growing vanilla, pepper, cinnamon and cacao. You walk it, smell everything, and eat what comes out of the kitchen at the end. Quietly one of the best mornings around here.",
+        },
+        {
+          id: "santa-juana",
+          name: "Santa Juana mountain village",
+          category: "adventure",
+          travel: "40 min by car",
+          text: "A mountain community above the valley running its own tours — trout ponds, waterfalls, sugar cane, and lunch cooked by the families who live there. The least touristy day on this map.",
         },
       ],
     },
@@ -528,18 +562,17 @@ export const dict: Record<Locale, Dictionary> = {
       eyebrow: "Pesca y Aventura",
       title: "Vinimos por la pesca. Nos quedamos por todo lo demás.",
       sub: "Nuestra familia descubrió Quepos en unas vacaciones de pesca y nunca se fue del todo. Es un pueblo de pesca ante todo, pero hay de sobra para los niños y para quien nunca ha tomado una caña — esto es todo lo que queda al alcance del portón.",
-      filterAll: "Todo",
-      filterFishing: "Pesca",
-      filterNature: "Naturaleza",
-      filterAdventure: "Aventura",
+      catFishing: "Pesca",
+      catNature: "Naturaleza",
+      catAdventure: "Aventura",
+      catTown: "En el pueblo",
       baseName: "Las casas",
-      baseMeta: "Usted está aquí",
       pacific: "PACÍFICO",
       note: "Un croquis, no un plano — las direcciones son correctas, las distancias no. Los tiempos de viaje sí son reales, medidos desde nuestro portón.",
       directionsCta: "Cómo llegar",
       mapsCta: "Ver en Google Maps",
       listingCta: "Fischer Tropitel en Google Maps",
-      hint: "Elija un punto para ver qué hay allí y a qué distancia queda de su puerta.",
+      hint: "Pase el cursor por cualquier punto para ver la ruta desde la casa. Haga clic para ver qué hay allí y cómo llegar.",
       places: [
         {
           id: "quepos-marina",
@@ -603,6 +636,41 @@ export const dict: Record<Locale, Dictionary> = {
           category: "adventure",
           travel: "1 h 15 en carro",
           text: "Dos cataratas; la de arriba cae unos 45 metros a una poza lo bastante ancha para cruzarla nadando. Se llega a pie, a caballo o en camión. Es el paseo más largo de este mapa y del que la gente habla después.",
+        },
+        {
+          id: "quepos-town",
+          name: "Quepos y la feria del sábado",
+          category: "town",
+          travel: "25 min en carro",
+          text: "Supermercado, ferretería, restaurantes y el banco — la parada práctica. Los sábados por la mañana la feria llena el malecón de fruta, pescado y verduras recién traídas de las fincas.",
+        },
+        {
+          id: "damas",
+          name: "Manglares de Isla Damas",
+          category: "nature",
+          travel: "30 min en carro",
+          text: "En bote o en kayak por los canales del estero al norte del pueblo. Agua tranquila, mucha sombra y la mejor oportunidad del día para ver monos, caimanes y garzas sin caminar nada.",
+        },
+        {
+          id: "biesanz",
+          name: "Playa Biesanz",
+          category: "nature",
+          travel: "35 min en carro",
+          text: "Una cala pequeña y protegida en Punta Quepos, a la que se llega por un sendero corto entre los árboles. Agua más calmada que en las playas abiertas y una fracción de la gente — el baño ideal cuando el parque está lleno.",
+        },
+        {
+          id: "villa-vanilla",
+          name: "Finca de especias Villa Vanilla",
+          category: "nature",
+          travel: "30 min en carro",
+          text: "Una plantación en las montañas donde crecen vainilla, pimienta, canela y cacao. Se recorre, se huele todo y al final se come lo que sale de la cocina. Una de las mejores mañanas de por aquí.",
+        },
+        {
+          id: "santa-juana",
+          name: "Pueblo de montaña Santa Juana",
+          category: "adventure",
+          travel: "40 min en carro",
+          text: "Una comunidad de montaña sobre el valle que maneja sus propios tours — pozas de truchas, cataratas, caña de azúcar y almuerzo cocinado por las familias que viven allí. El día menos turístico de este mapa.",
         },
       ],
     },

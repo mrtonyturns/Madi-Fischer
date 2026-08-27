@@ -30,6 +30,7 @@
   --sun: oklch(0.81 0.13 82);
   --sun-deep: oklch(0.7 0.14 66);
   --clay: oklch(0.63 0.13 42);
+  --sea: oklch(0.63 0.075 190);
   --cream: oklch(0.97 0.014 92);
   --sand: oklch(0.93 0.022 90);
 
@@ -118,6 +119,7 @@
   --color-sun: var(--sun);
   --color-sun-deep: var(--sun-deep);
   --color-clay: var(--clay);
+  --color-sea: var(--sea);
   --color-cream: var(--cream);
   --color-sand: var(--sand);
   --color-stone: var(--stone);
@@ -383,11 +385,13 @@
     font-size: 0.9375rem;
     font-weight: 600;
     color: var(--forest);
-    padding-bottom: 2px;
+    /* Vertical padding is for the thumb, not the look — the rule is pulled
+       back up to sit under the words rather than under the padding. */
+    padding-block: 0.5rem;
     background-image: linear-gradient(currentColor, currentColor);
     background-size: 0% 1.5px;
     background-repeat: no-repeat;
-    background-position: 0 100%;
+    background-position: 0 calc(100% - 0.5rem + 2px);
     transition:
       background-size 380ms cubic-bezier(0.22, 1, 0.36, 1),
       color 240ms ease;
