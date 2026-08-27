@@ -95,7 +95,8 @@ interface Dictionary {
     catAdventure: string;
     catTown: string;
     baseName: string;
-    pacific: string;
+    /** Shown under the house marker — the pin is on the landmark, not the gate. */
+    baseNote: string;
     note: string;
     hint: string;
     /** "Get directions" / "See on Google Maps" on the detail card. */
@@ -262,12 +263,12 @@ export const dict: Record<Locale, Dictionary> = {
       catAdventure: "Adventure",
       catTown: "Around town",
       baseName: "The casas",
-      pacific: "PACIFIC",
+      baseNote: "approximate",
       note: "A sketch, not a survey — the bearings are right, the distances aren't. Driving times are approximate and assume dry-season roads; ask us before you plan a day around one.",
       directionsCta: "Get directions",
       mapsCta: "See on Google Maps",
       listingCta: "Fischer Tropitel on Google Maps",
-      hint: "Hover any marker to see the route from the house. Click one for what's there and directions.",
+      hint: "Hover any marker to see the line back to the house. Click one for what's there and directions.",
       places: [
         {
           id: "quepos-marina",
@@ -555,12 +556,12 @@ export const dict: Record<Locale, Dictionary> = {
       catAdventure: "Aventura",
       catTown: "En el pueblo",
       baseName: "Las casas",
-      pacific: "PACÍFICO",
+      baseNote: "aproximado",
       note: "Un croquis, no un plano — las direcciones son correctas, las distancias no. Los tiempos de manejo son aproximados y suponen caminos de temporada seca; pregúntenos antes de planear el día en función de uno.",
       directionsCta: "Cómo llegar",
       mapsCta: "Ver en Google Maps",
       listingCta: "Fischer Tropitel en Google Maps",
-      hint: "Pase el cursor por cualquier punto para ver la ruta desde la casa. Haga clic para ver qué hay allí y cómo llegar.",
+      hint: "Pase el cursor por cualquier punto para ver la línea hasta la casa. Haga clic para ver qué hay allí y cómo llegar.",
       places: [
         {
           id: "quepos-marina",

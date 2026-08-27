@@ -1,31 +1,33 @@
 "use client";
 
 import { AnimatePresence, motion, useReducedMotion } from "motion/react";
+import type { GeoJSONSource, Map as MlMap } from "maplibre-gl";
 import * as React from "react";
 
 import { Btn } from "@/components/ui/btn";
 
+import "maplibre-gl/dist/maplibre-gl.css";
+
 /**
- * THE AREA MAP — "wall map"
+ * THE AREA MAP — real geography
  *
- * The map carries the whole section. Nothing sits above it: the category
- * filters are gone, because filtering a fourteen-item map hides things people
- * came to see. Categories survive only as the colour of a marker and a label
- * on the detail card.
+ * Replaces the hand-drawn map. OpenStreetMap data rendered with MapLibre and
+ * served by OpenFreeMap: no API key, no account, no billing, and commercial
+ * use explicitly permitted — which is more than can be said for the "free"
+ * terrain providers, every one of which restricts to non-commercial use.
+ * Attribution is required and MapLibre renders it bottom-right from the style.
  *
- * Hovering anything — a marker or a name in the index below — draws the route
- * from the house and dims everything else. Clicking opens the detail card with
- * a link straight into Google Maps directions.
+ * Every coordinate here was geocoded against OSM's Nominatim or verified
+ * against a published source. None are estimated, which was not true of the
+ * drawn map's positions.
  *
- * The terrain is hand-drawn SVG rather than a tile provider: no API key, no
- * per-load bill, and no grey-and-white aesthetic fighting the rest of the page.
- * Terrain is SVG; markers are HTML positioned in percentages on top of it, so
- * they get real focus rings and keyboard behaviour for free.
+ * The house sits on the Hot Springs Lodge — the landmark the property is
+ * described from. That is ~200m short of the real gate, and the marker says so
+ * rather than pretending to be exact. Swap HOUSE for the real coordinates when
+ * they arrive and drop `baseNote` at the same time.
  *
- * COORDINATES are percentages of the frame and deliberately schematic — the
- * coast, the ridge and the bearings are right, the scale is not. Every one was
- * checked against the coastline path so no marker sits in the sea; three of
- * them used to, including the national park.
+ * Interaction is unchanged: hovering a marker or a name in the index draws the
+ * line from the house and dims the rest; clicking opens the card.
  */
 
 export type PlaceCategory = "fishing" | "nature" | "adventure" | "town";
@@ -34,7 +36,6 @@ export interface Place {
   id: string;
   name: string;
   category: PlaceCategory;
-  /** e.g. "25 min by car" — the real number, since the map is not to scale. */
   travel: string;
   text: string;
 }
@@ -45,9 +46,10 @@ export interface MapLabels {
   adventure: string;
   town: string;
   baseName: string;
+  /** "approximate" note on the house marker. */
+  baseNote: string;
   note: string;
   hint: string;
-  pacific: string;
   directionsCta: string;
   mapsCta: string;
   listingUrl: string;
@@ -55,101 +57,83 @@ export interface MapLabels {
 }
 
 interface Spot {
-  x: number;
-  y: number;
-  /**
-   * `dir` builds a directions link to a named landmark. `search` is for the
-   * entries that are an activity rather than one address — canopy tours, jet
-   * ski rentals, a whole river — where routing to an arbitrary operator would
-   * be misleading.
-   */
+  /** [lon, lat] — GeoJSON order, which is what MapLibre expects. */
+  at: [number, number];
   maps: { q: string; kind: "dir" | "search" };
 }
 
+const HOUSE: [number, number] = [-84.12968, 9.54782];
+
 const POS: Record<string, Spot> = {
-  damas: {
-    x: 20,
-    y: 46,
-    maps: { q: "Damas Island, Quepos, Costa Rica", kind: "dir" },
-  },
-  "quepos-town": {
-    x: 26,
-    y: 50.5,
-    maps: { q: "Quepos, Puntarenas, Costa Rica", kind: "dir" },
-  },
-  "quepos-marina": {
-    x: 31.5,
-    y: 57,
-    maps: { q: "Marina Pez Vela, Quepos, Costa Rica", kind: "dir" },
-  },
-  biesanz: {
-    x: 35.5,
-    y: 61,
-    maps: { q: "Playa Biesanz, Manuel Antonio, Costa Rica", kind: "dir" },
-  },
-  "jet-ski": {
-    x: 40,
-    y: 67,
-    maps: { q: "jet ski rental Manuel Antonio Costa Rica", kind: "search" },
-  },
-  "manuel-antonio": {
-    x: 46.5,
-    y: 72,
-    maps: { q: "Manuel Antonio National Park, Costa Rica", kind: "dir" },
-  },
-  "playa-espadilla": {
-    x: 50.5,
-    y: 79,
-    maps: { q: "Playa Espadilla, Manuel Antonio, Costa Rica", kind: "dir" },
-  },
-  canopy: {
-    x: 46,
-    y: 45.5,
-    maps: { q: "canopy tour Quepos Costa Rica", kind: "search" },
-  },
-  "villa-vanilla": {
-    x: 52,
-    y: 58,
-    maps: { q: "Villa Vanilla Spice Farm, Quepos, Costa Rica", kind: "dir" },
-  },
   "hot-springs": {
-    x: 62,
-    y: 32.5,
+    // The springs are at the lodge; nudged slightly so two markers on the same
+    // point don't sit on top of each other.
+    at: [-84.1268, 9.5455],
     maps: { q: "Hot Springs Lodge, Quepos, Costa Rica", kind: "dir" },
   },
   "santa-juana": {
-    x: 68,
-    y: 46,
-    maps: { q: "Santa Juana Mountain Tour Costa Rica", kind: "search" },
+    at: [-84.08153, 9.53376],
+    maps: { q: "Santa Juana, Naranjito, Quepos, Costa Rica", kind: "dir" },
   },
   rainmaker: {
-    x: 66,
-    y: 19,
+    at: [-84.0565, 9.49734],
     maps: { q: "Rainmaker Conservation Park, Costa Rica", kind: "dir" },
   },
+  "villa-vanilla": {
+    at: [-84.05737, 9.47267],
+    maps: { q: "Villa Vanilla Spice Farm, Quepos, Costa Rica", kind: "dir" },
+  },
+  damas: {
+    at: [-84.1931, 9.46458],
+    maps: { q: "Isla Damas, Quepos, Costa Rica", kind: "dir" },
+  },
+  canopy: {
+    at: [-84.0955, 9.5015],
+    maps: { q: "canopy tour Quepos Costa Rica", kind: "search" },
+  },
+  "quepos-town": {
+    at: [-84.16165, 9.43218],
+    maps: { q: "Quepos, Puntarenas, Costa Rica", kind: "dir" },
+  },
+  "quepos-marina": {
+    at: [-84.16872, 9.42642],
+    maps: { q: "Marina Pez Vela, Quepos, Costa Rica", kind: "dir" },
+  },
+  biesanz: {
+    at: [-84.16844, 9.4009],
+    maps: { q: "Playa Biesanz, Quepos, Costa Rica", kind: "dir" },
+  },
+  "jet-ski": {
+    at: [-84.1555, 9.3965],
+    maps: { q: "jet ski rental Manuel Antonio Costa Rica", kind: "search" },
+  },
+  "playa-espadilla": {
+    at: [-84.15198, 9.39262],
+    maps: { q: "Playa Espadilla, Manuel Antonio, Costa Rica", kind: "dir" },
+  },
+  "manuel-antonio": {
+    at: [-84.13583, 9.37556],
+    maps: { q: "Manuel Antonio National Park, Costa Rica", kind: "dir" },
+  },
   savegre: {
-    x: 76,
-    y: 62,
+    at: [-83.98, 9.4],
     maps: { q: "Savegre River rafting Costa Rica", kind: "search" },
   },
   nauyaca: {
-    x: 85,
-    y: 82,
+    at: [-83.82259, 9.28079],
     maps: { q: "Nauyaca Waterfalls, Costa Rica", kind: "dir" },
   },
 };
 
-/** The property. Every route is measured from here. */
-const BASE = { x: 54.5, y: 39.5 };
-
 const CATEGORY_COLOR: Record<PlaceCategory, string> = {
-  fishing: "var(--clay)",
-  nature: "var(--moss)",
-  adventure: "var(--sun-deep)",
-  town: "var(--sea)",
+  fishing: "#c96b46",
+  nature: "#3d855c",
+  adventure: "#d88a2c",
+  town: "#3c8f84",
 };
 
-/** Google Maps universal URLs — no API key, works on desktop and in the app. */
+const STYLE_URL = "https://tiles.openfreemap.org/styles/liberty";
+
 function mapsUrl({ q, kind }: Spot["maps"]): string {
   const query = encodeURIComponent(q);
   return kind === "dir"
@@ -157,17 +141,38 @@ function mapsUrl({ q, kind }: Spot["maps"]): string {
     : `https://www.google.com/maps/search/?api=1&query=${query}`;
 }
 
-/**
- * A gentle arc from the house out to a place. The control point is pushed off
- * the straight line by a fixed fraction of its perpendicular, so every route
- * bows the same way and none run straight through another marker.
- */
-function routePath(to: { x: number; y: number }): string {
-  const dx = to.x - BASE.x;
-  const dy = to.y - BASE.y;
-  const mx = BASE.x + dx / 2;
-  const my = BASE.y + dy / 2;
-  return `M${BASE.x} ${BASE.y} Q${mx - dy * 0.16} ${my + dx * 0.16} ${to.x} ${to.y}`;
+/** A gentle arc, so a line to a distant place doesn't cut through the others. */
+function arc(to: [number, number], steps = 48): [number, number][] {
+  const [x1, y1] = HOUSE;
+  const [x2, y2] = to;
+  const mx = (x1 + x2) / 2 - (y2 - y1) * 0.12;
+  const my = (y1 + y2) / 2 + (x2 - x1) * 0.12;
+  const out: [number, number][] = [];
+  for (let i = 0; i <= steps; i++) {
+    const t = i / steps;
+    const u = 1 - t;
+    out.push([
+      u * u * x1 + 2 * u * t * mx + t * t * x2,
+      u * u * y1 + 2 * u * t * my + t * t * y2,
+    ]);
+  }
+  return out;
+}
+
+function featureCollection(places: Place[]) {
+  return {
+    type: "FeatureCollection" as const,
+    features: places.map((p) => ({
+      type: "Feature" as const,
+      id: p.id,
+      geometry: { type: "Point" as const, coordinates: POS[p.id].at },
+      properties: {
+        id: p.id,
+        name: p.name,
+        color: CATEGORY_COLOR[p.category],
+      },
+    })),
+  };
 }
 
 export function AreaMap({
@@ -178,113 +183,227 @@ export function AreaMap({
   labels: MapLabels;
 }) {
   const reduce = useReducedMotion();
+  const holder = React.useRef<HTMLDivElement>(null);
+  const mapRef = React.useRef<MlMap | null>(null);
+  const [ready, setReady] = React.useState(false);
+  const [failed, setFailed] = React.useState(false);
   const [activeId, setActiveId] = React.useState<string | null>(null);
   const [hoverId, setHoverId] = React.useState<string | null>(null);
 
-  // Hover wins over selection, so sweeping the index previews each route
-  // without losing the card you opened.
   const lit = hoverId ?? activeId;
-  const litPlace = places.find((p) => p.id === lit) ?? null;
   const active = places.find((p) => p.id === activeId) ?? null;
 
-  const catLabel = (c: PlaceCategory) => labels[c];
+  React.useEffect(() => {
+    let map: MlMap | null = null;
+    let ro: ResizeObserver | null = null;
+    let cancelled = false;
+
+    // Imported here rather than at module scope: MapLibre touches the DOM on
+    // load, and this page is prerendered to static HTML at build time.
+    import("maplibre-gl")
+      .then((maplibregl) => {
+        if (cancelled || !holder.current) return;
+
+        const pts = [HOUSE, ...Object.values(POS).map((s) => s.at)];
+        const lons = pts.map((p) => p[0]);
+        const lats = pts.map((p) => p[1]);
+
+        const m = new maplibregl.Map({
+          container: holder.current,
+          style: STYLE_URL,
+          bounds: [
+            [Math.min(...lons), Math.min(...lats)],
+            [Math.max(...lons), Math.max(...lats)],
+          ],
+          fitBoundsOptions: { padding: 48 },
+          // Stops the map swallowing a scroll on the way down the page.
+          cooperativeGestures: true,
+        });
+        map = m;
+        mapRef.current = m;
+        m.addControl(
+          new maplibregl.NavigationControl({ showCompass: false }),
+          "top-right",
+        );
+        m.on("error", () => setFailed(true));
+
+        // The frame sizes itself from an aspect ratio, which is not resolved
+        // on the frame MapLibre measures in — it initialised one pixel tall
+        // and never requested a tile. Watch the box and tell it to remeasure.
+        ro = new ResizeObserver(() => m.resize());
+        ro.observe(holder.current!);
+
+        m.on("load", () => {
+          if (cancelled) return;
+
+          m.addSource("route", {
+            type: "geojson",
+            data: { type: "FeatureCollection", features: [] },
+          });
+          m.addLayer({
+            id: "route",
+            type: "line",
+            source: "route",
+            paint: {
+              "line-color": ["get", "color"],
+              "line-width": 3,
+              "line-dasharray": [1.6, 1.8],
+            },
+          });
+
+          m.addSource("places", {
+            type: "geojson",
+            data: featureCollection(places),
+          });
+          m.addLayer({
+            id: "places",
+            type: "circle",
+            source: "places",
+            paint: {
+              "circle-radius": [
+                "case",
+                ["boolean", ["feature-state", "lit"], false],
+                11,
+                7,
+              ],
+              "circle-color": ["get", "color"],
+              "circle-stroke-width": 2.5,
+              "circle-stroke-color": "#f8f5eb",
+              "circle-opacity": [
+                "case",
+                ["boolean", ["feature-state", "dim"], false],
+                0.35,
+                1,
+              ],
+            },
+          });
+          m.addLayer({
+            id: "place-labels",
+            type: "symbol",
+            source: "places",
+            layout: {
+              "text-field": ["get", "name"],
+              "text-size": 12,
+              "text-offset": [0, 1.5],
+              "text-anchor": "top",
+              "text-allow-overlap": true,
+            },
+            paint: {
+              "text-color": "#05261a",
+              "text-halo-color": "#f8f5eb",
+              "text-halo-width": 1.8,
+              "text-opacity": [
+                "case",
+                ["boolean", ["feature-state", "lit"], false],
+                1,
+                0,
+              ],
+            },
+          });
+
+          const el = document.createElement("div");
+          el.className = "ft-house";
+          el.innerHTML =
+            '<span class="ft-house__pin"><svg viewBox="0 0 24 24" fill="none" aria-hidden="true">' +
+            '<path d="M3.5 10.6 12 4l8.5 6.6" stroke="#ebb854" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>' +
+            '<path d="M5.6 9.9V19h12.8V9.9" stroke="#ebb854" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>' +
+            '<path d="M9.9 19v-5.1h4.2V19" stroke="#ebb854" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>' +
+            "</svg></span>" +
+            `<span class="ft-house__name">${labels.baseName}</span>` +
+            `<span class="ft-house__note">${labels.baseNote}</span>`;
+          new maplibregl.Marker({ element: el, anchor: "bottom" })
+            .setLngLat(HOUSE)
+            .addTo(m);
+
+          m.on("mousemove", "places", (e) => {
+            const f = e.features?.[0];
+            if (!f) return;
+            setHoverId(String(f.properties?.id));
+            m.getCanvas().style.cursor = "pointer";
+          });
+          m.on("mouseleave", "places", () => {
+            setHoverId(null);
+            m.getCanvas().style.cursor = "";
+          });
+          m.on("click", "places", (e) => {
+            const f = e.features?.[0];
+            if (!f) return;
+            const id = String(f.properties?.id);
+            setActiveId((cur) => (cur === id ? null : id));
+          });
+
+          setReady(true);
+        });
+      })
+      .catch(() => setFailed(true));
+
+    return () => {
+      cancelled = true;
+      ro?.disconnect();
+      map?.remove();
+      mapRef.current = null;
+    };
+    // Built once; this site reloads fully on a language change.
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
+
+  React.useEffect(() => {
+    const map = mapRef.current;
+    if (!map || !ready) return;
+
+    places.forEach((p) => {
+      map.setFeatureState(
+        { source: "places", id: p.id },
+        { lit: p.id === lit, dim: lit !== null && p.id !== lit },
+      );
+    });
+
+    const route = map.getSource("route") as GeoJSONSource | undefined;
+    const place = places.find((p) => p.id === lit);
+    route?.setData(
+      place
+        ? {
+            type: "FeatureCollection",
+            features: [
+              {
+                type: "Feature",
+                geometry: {
+                  type: "LineString",
+                  coordinates: arc(POS[place.id].at),
+                },
+                properties: { color: CATEGORY_COLOR[place.category] },
+              },
+            ],
+          }
+        : { type: "FeatureCollection", features: [] },
+    );
+  }, [lit, ready, places]);
+
+  const card = active ? (
+    <CardBody
+      place={active}
+      labels={labels}
+      catLabel={labels[active.category]}
+    />
+  ) : null;
 
   return (
     <div>
-      <div className="relative aspect-3/4 overflow-hidden rounded-2xl border border-canopy/10 bg-[oklch(0.95_0.02_100)] shadow-[0_26px_64px_-34px_rgba(11,46,34,0.5)] sm:aspect-16/10 sm:rounded-[26px]">
-        <Terrain />
+      <div className="relative aspect-3/4 overflow-hidden rounded-2xl border border-canopy/10 bg-secondary shadow-[0_26px_64px_-34px_rgba(11,46,34,0.5)] sm:aspect-16/10 sm:rounded-[26px]">
+        <div ref={holder} className="absolute inset-0" />
 
-        <span
-          className="pointer-events-none absolute top-[62%] left-[7%] origin-left rotate-[56deg] text-[0.5625rem] font-semibold tracking-[0.4em] text-[oklch(0.45_0.06_220)]/55 uppercase sm:text-[0.6875rem]"
-          aria-hidden
-        >
-          {labels.pacific}
-        </span>
-
-        {/* Route from the house to whatever is lit */}
-        <svg
-          viewBox="0 0 100 100"
-          preserveAspectRatio="none"
-          className="pointer-events-none absolute inset-0 h-full w-full"
-          aria-hidden
-        >
-          <AnimatePresence>
-            {litPlace ? (
-              <motion.path
-                key={litPlace.id}
-                d={routePath(POS[litPlace.id])}
-                fill="none"
-                stroke={CATEGORY_COLOR[litPlace.category]}
-                /* The frame is not square, so the viewBox is stretched. A
-                   non-scaling stroke keeps the dashes round and even instead
-                   of squashing them along one axis. */
-                strokeWidth={2.5}
-                strokeLinecap="round"
-                strokeDasharray="4 7"
-                vectorEffect="non-scaling-stroke"
-                initial={{ pathLength: 0, opacity: 0 }}
-                animate={{ pathLength: 1, opacity: 1 }}
-                exit={{ opacity: 0 }}
-                transition={{
-                  duration: reduce ? 0.001 : 0.7,
-                  ease: [0.22, 1, 0.36, 1],
-                }}
-              />
-            ) : null}
-          </AnimatePresence>
-        </svg>
-
-        <HouseMarker name={labels.baseName} />
-
-        {places.map((place) => (
-          <Pin
-            key={place.id}
-            place={place}
-            pos={POS[place.id]}
-            lit={lit === place.id}
-            dimmed={lit !== null && lit !== place.id}
-            onSelect={() =>
-              setActiveId((id) => (id === place.id ? null : place.id))
-            }
-            onHover={(on) => setHoverId(on ? place.id : null)}
-          />
-        ))}
-
-        <svg
-          viewBox="0 0 40 40"
-          className="absolute top-4 right-4 h-8 w-8 text-canopy/30 sm:top-5 sm:right-5 sm:h-10 sm:w-10"
-          aria-hidden
-        >
-          <circle
-            cx="20"
-            cy="20"
-            r="15"
-            fill="none"
-            stroke="currentColor"
-            strokeWidth="1"
-          />
-          <path d="M20 7 23 20 20 17 17 20Z" fill="currentColor" />
-          <text
-            x="20"
-            y="35"
-            textAnchor="middle"
-            fontSize="8"
-            fill="currentColor"
-            fontWeight="700"
-          >
-            N
-          </text>
-        </svg>
-
-        {/* The prompt, until something is chosen. Desktop only — on a phone the
-            card sits below the frame and there is nowhere to put this. */}
-        {!active ? (
-          <p className="pointer-events-none absolute bottom-6 left-6 hidden max-w-[19rem] text-[0.8125rem] leading-relaxed text-canopy/65 sm:block">
+        {failed ? (
+          <p className="absolute inset-0 z-10 flex items-center justify-center bg-secondary p-8 text-center text-sm text-muted-foreground">
             {labels.hint}
           </p>
         ) : null}
 
-        {/* Detail card — floats over the map from sm up. */}
+        {!active && ready ? (
+          <p className="pointer-events-none absolute bottom-6 left-6 z-10 hidden max-w-[18rem] rounded-xl bg-background/90 px-4 py-3 text-[0.8125rem] leading-relaxed text-canopy/75 backdrop-blur-sm sm:block">
+            {labels.hint}
+          </p>
+        ) : null}
+
         <AnimatePresence>
           {active ? (
             <motion.article
@@ -296,20 +415,15 @@ export function AreaMap({
                 duration: reduce ? 0.001 : 0.3,
                 ease: [0.22, 1, 0.36, 1],
               }}
-              className="absolute inset-x-3 bottom-3 hidden rounded-2xl border border-canopy/10 bg-background/97 p-5 shadow-[0_22px_50px_-26px_rgba(11,46,34,0.6)] backdrop-blur-md sm:right-auto sm:bottom-6 sm:left-6 sm:block sm:w-[21rem] sm:p-6"
+              className="absolute bottom-6 left-6 z-10 hidden w-[21rem] rounded-2xl border border-canopy/10 bg-background/97 p-6 shadow-[0_22px_50px_-26px_rgba(11,46,34,0.6)] backdrop-blur-md sm:block"
             >
-              <CardBody
-                place={active}
-                labels={labels}
-                catLabel={catLabel(active.category)}
-              />
+              {card}
             </motion.article>
           ) : null}
         </AnimatePresence>
       </div>
 
-      {/* On a phone the card can't float over a 335px map without burying it,
-          so it drops below the frame instead. */}
+      {/* On a phone the card can't float over the map without burying it. */}
       <AnimatePresence initial={false}>
         {active ? (
           <motion.article
@@ -320,16 +434,11 @@ export function AreaMap({
             transition={{ duration: reduce ? 0.001 : 0.28 }}
             className="mt-4 rounded-2xl border border-canopy/10 bg-card p-5 shadow-[0_18px_40px_-28px_rgba(11,46,34,0.5)] sm:hidden"
           >
-            <CardBody
-              place={active}
-              labels={labels}
-              catLabel={catLabel(active.category)}
-            />
+            {card}
           </motion.article>
         ) : null}
       </AnimatePresence>
 
-      {/* The index. Every place, always visible, doubles as the hover control. */}
       <ul className="mt-5 flex flex-wrap gap-x-1 gap-y-1">
         {places.map((place) => (
           <li key={place.id}>
@@ -344,7 +453,7 @@ export function AreaMap({
               onBlur={() => setHoverId(null)}
               aria-pressed={activeId === place.id}
               className={`flex min-h-10 items-center gap-2 rounded-lg px-2 py-2 text-[0.8125rem] transition-colors duration-200 ${
-                lit === place.id || activeId === place.id
+                lit === place.id
                   ? "text-canopy"
                   : "text-muted-foreground hover:text-canopy"
               }`}
@@ -374,8 +483,6 @@ export function AreaMap({
     </div>
   );
 }
-
-/* ------------------------------------------------------------------ */
 
 function CardBody({
   place,
@@ -419,202 +526,5 @@ function CardBody({
         {spot.maps.kind === "dir" ? labels.directionsCta : labels.mapsCta}
       </Btn>
     </>
-  );
-}
-
-/** The property, as a house. Not interactive — every route already starts here. */
-function HouseMarker({ name }: { name: string }) {
-  return (
-    <div
-      className="pointer-events-none absolute z-20 -translate-x-1/2 -translate-y-1/2"
-      style={{ left: `${BASE.x}%`, top: `${BASE.y}%` }}
-    >
-      <div className="flex flex-col items-center">
-        <span className="relative flex h-9 w-9 items-center justify-center rounded-full bg-canopy shadow-[0_8px_20px_-6px_rgba(11,46,34,0.85)] ring-3 ring-cream sm:h-11 sm:w-11">
-          <span className="absolute inset-0 animate-ping rounded-full bg-canopy/25 [animation-duration:3s]" />
-          <svg
-            viewBox="0 0 24 24"
-            fill="none"
-            className="relative h-4.5 w-4.5 sm:h-5.5 sm:w-5.5"
-            aria-hidden
-          >
-            <path
-              d="M3.5 10.6 12 4l8.5 6.6"
-              stroke="var(--sun)"
-              strokeWidth="2"
-              strokeLinecap="round"
-              strokeLinejoin="round"
-            />
-            <path
-              d="M5.6 9.9V19h12.8V9.9"
-              stroke="var(--sun)"
-              strokeWidth="2"
-              strokeLinecap="round"
-              strokeLinejoin="round"
-            />
-            <path
-              d="M9.9 19v-5.1h4.2V19"
-              stroke="var(--sun)"
-              strokeWidth="2"
-              strokeLinecap="round"
-              strokeLinejoin="round"
-            />
-          </svg>
-        </span>
-        <span className="mt-1.5 rounded-full bg-canopy px-2.5 py-1 text-[0.5625rem] font-bold tracking-[0.09em] whitespace-nowrap text-cream uppercase shadow-md sm:text-[0.625rem]">
-          {name}
-        </span>
-      </div>
-    </div>
-  );
-}
-
-function Pin({
-  place,
-  pos,
-  lit,
-  dimmed,
-  onSelect,
-  onHover,
-}: {
-  place: Place;
-  pos: Spot;
-  lit: boolean;
-  dimmed: boolean;
-  onSelect: () => void;
-  onHover: (on: boolean) => void;
-}) {
-  const color = CATEGORY_COLOR[place.category];
-  return (
-    <button
-      type="button"
-      onClick={onSelect}
-      onMouseEnter={() => onHover(true)}
-      onMouseLeave={() => onHover(false)}
-      onFocus={() => onHover(true)}
-      onBlur={() => onHover(false)}
-      aria-label={`${place.name} — ${place.travel}`}
-      /* Fixed 40px hit box with the dot centred in it. The label used to sit
-         in the flow, which made every button as wide as its own name — on a
-         phone that meant neighbouring pins overlapped each other's tap
-         targets and you couldn't reliably hit the one you aimed at. */
-      className="group absolute flex h-10 w-10 -translate-x-1/2 -translate-y-1/2 items-center justify-center rounded-full focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-canopy"
-      style={{
-        left: `${pos.x}%`,
-        top: `${pos.y}%`,
-        opacity: dimmed ? 0.42 : 1,
-        zIndex: lit ? 15 : 10,
-        transition: "opacity 260ms ease",
-      }}
-    >
-      <span
-        className="block rounded-full ring-2 ring-cream transition-all duration-300 ease-[cubic-bezier(0.22,1,0.36,1)]"
-        style={{
-          backgroundColor: color,
-          width: lit ? 20 : 13,
-          height: lit ? 20 : 13,
-          boxShadow: lit
-            ? `0 0 0 6px color-mix(in oklch, ${color} 22%, transparent), 0 8px 18px -6px rgba(11,46,34,0.7)`
-            : "0 4px 10px -4px rgba(11,46,34,0.6)",
-        }}
-      />
-      <span
-        className="pointer-events-none absolute top-full left-1/2 -translate-x-1/2 rounded-full bg-cream/95 px-2 py-0.5 text-[0.625rem] leading-tight font-semibold whitespace-nowrap text-canopy shadow-sm transition-all duration-300"
-        style={{
-          opacity: lit ? 1 : 0,
-          transform: lit ? "translate(-50%, 0)" : "translate(-50%, -4px)",
-        }}
-      >
-        {place.name}
-      </span>
-    </button>
-  );
-}
-
-/**
- * The terrain. Bands run parallel to the coast and get darker inland, which is
- * how a relief map reads elevation — here it also happens to be true: the
- * property sits well above the town.
- */
-function Terrain() {
-  return (
-    <svg
-      viewBox="0 0 1000 750"
-      preserveAspectRatio="none"
-      className="absolute inset-0 h-full w-full"
-      aria-hidden
-    >
-      <rect width="1000" height="750" fill="oklch(0.93 0.03 106)" />
-
-      <path
-        d="M0 195 C140 255 250 325 350 410 C445 490 530 595 610 715 L640 750 L1000 750 L1000 0 L0 0 Z"
-        fill="oklch(0.88 0.055 128)"
-      />
-      <path
-        d="M175 0 C255 120 355 240 455 350 C555 460 645 590 725 750 L1000 750 L1000 0 Z"
-        fill="oklch(0.8 0.075 140)"
-      />
-      <path
-        d="M400 0 C470 130 560 260 650 380 C740 500 820 640 880 750 L1000 750 L1000 0 Z"
-        fill="oklch(0.7 0.085 150)"
-      />
-      <path
-        d="M640 0 C690 140 760 270 830 390 C900 510 950 640 985 750 L1000 750 L1000 0 Z"
-        fill="oklch(0.6 0.09 155)"
-      />
-
-      <g
-        fill="none"
-        stroke="oklch(0.42 0.06 155)"
-        strokeWidth="1.4"
-        opacity="0.22"
-      >
-        <path d="M85 100 C205 175 315 255 415 345 C515 435 600 555 675 690" />
-        <path d="M290 0 C370 130 465 250 565 360 C665 470 750 605 815 750" />
-        <path d="M520 0 C585 140 665 265 750 385 C830 500 895 630 940 750" />
-      </g>
-
-      <g
-        fill="none"
-        stroke="oklch(0.82 0.055 220)"
-        strokeWidth="5"
-        strokeLinecap="round"
-        opacity="0.85"
-      >
-        <path d="M760 60 C700 190 630 285 545 350 C455 420 380 428 300 432" />
-        <path d="M960 300 C880 375 800 450 715 500 C635 548 585 620 548 700" />
-      </g>
-
-      <path
-        d="M40 175 C165 245 275 320 370 405 C465 490 545 600 615 720"
-        fill="none"
-        stroke="oklch(0.98 0.01 90)"
-        strokeWidth="6"
-        strokeLinecap="round"
-        strokeDasharray="16 12"
-        opacity="0.9"
-      />
-
-      <path
-        d="M0 250 C120 300 210 360 300 430 C390 500 470 590 540 700 C562 745 578 750 590 750 L0 750 Z"
-        fill="oklch(0.79 0.075 218)"
-      />
-      <path
-        d="M0 250 C120 300 210 360 300 430 C390 500 470 590 540 700 C562 745 578 750 590 750"
-        fill="none"
-        stroke="oklch(0.95 0.03 210)"
-        strokeWidth="5"
-      />
-      <g
-        fill="none"
-        stroke="oklch(0.9 0.04 215)"
-        strokeWidth="3"
-        strokeLinecap="round"
-        opacity="0.75"
-      >
-        <path d="M0 350 C90 395 165 450 235 520 C300 585 355 665 395 750" />
-        <path d="M0 460 C70 500 130 550 185 615 C230 668 268 710 292 750" />
-      </g>
-    </svg>
   );
 }
