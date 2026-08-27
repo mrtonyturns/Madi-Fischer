@@ -58,6 +58,26 @@ The map's geography (pin coordinates, Google Maps queries) is in
 `components/area-map.tsx` — deliberately not translated. Only the names,
 descriptions and travel times are.
 
+**Adding a marker:** coordinates are percentages of the frame, and the ocean
+occupies the lower left. Three markers once sat in the sea, including the
+national park, so check any new one against the coastline rather than eyeballing
+it. Paste this in the browser console with the map on screen — it reports
+`OCEAN` or `land` for a given x/y:
+
+```js
+const svg = [...document.querySelectorAll('#area svg')]
+  .find(s => s.getAttribute('viewBox') === '0 0 1000 750');
+const sea = [...svg.querySelectorAll('path')]
+  .find(p => p.getAttribute('d').startsWith('M0 250 C120 300'));
+const pt = svg.createSVGPoint();
+const test = (x, y) => (pt.x = x * 10, pt.y = y * 7.5,
+  sea.isPointInFill(pt) ? 'OCEAN' : 'land');
+test(45, 71); // -> 'OCEAN'
+```
+
+Markers also need roughly 6% of clear space between them, or their 40px tap
+targets overlap on a phone.
+
 ## Configuration
 
 **Build-time** (must be present when `npm run build` runs):

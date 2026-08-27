@@ -121,16 +121,3 @@ export function Lift({
     </motion.div>
   );
 }
-
-/** Bouncing scroll cue for the hero. */
-export function ScrollCue({ children }: { children: React.ReactNode }) {
-  const reduce = useReducedMotion();
-  return (
-    <motion.div
-      animate={reduce ? undefined : { y: [0, 8, 0] }}
-      transition={{ repeat: Infinity, duration: 1.8, ease: "easeInOut" }}
-    >
-      {children}
-    </motion.div>
-  );
-}
