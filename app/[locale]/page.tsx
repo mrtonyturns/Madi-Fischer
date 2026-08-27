@@ -40,10 +40,28 @@ const AIRBNB_URLS: (string | null)[] = [
 const GOOGLE_LISTING_URL =
   "https://www.google.com/maps/search/?api=1&query=Fischer+Tropitel";
 
+/*
+ * Two of these are tall portrait shots (900x1200) dropped into a wide card, so
+ * `object-cover` throws most of the frame away. Centred, the surviving band
+ * landed on the deck canopy and the roof — the houses themselves sit in the
+ * lower half. `position` biases the crop down onto the front of each house.
+ */
 const CASA_IMAGES = [
-  { src: "/images/casa-cascada.jpg", alt: "Casa Cascada exterior" },
-  { src: "/images/loads-of-toads.jpg", alt: "Loads of Toads exterior" },
-  { src: "/images/casa-verde.jpg", alt: "Casa Verde exterior" },
+  {
+    src: "/images/casa-cascada.jpg",
+    alt: "The front of Casa Cascada from the shared deck",
+    position: "object-[center_62%]",
+  },
+  {
+    src: "/images/loads-of-toads.jpg",
+    alt: "The front door and windows of Loads of Toads",
+    position: "object-[center_64%]",
+  },
+  {
+    src: "/images/casa-verde.jpg",
+    alt: "Casa Verde against the jungle",
+    position: "object-center",
+  },
 ];
 
 const HIGHLIGHT_IMAGES = [
@@ -165,7 +183,7 @@ export default async function Home({
                           alt={CASA_IMAGES[i].alt}
                           fill
                           sizes="(min-width: 1280px) 1248px, 100vw"
-                          className="object-cover"
+                          className={`object-cover ${CASA_IMAGES[i].position}`}
                         />
                         <div className="absolute inset-0 bg-gradient-to-t from-canopy-deep via-canopy-deep/45 to-transparent" />
                         <div className="absolute inset-x-0 bottom-0 flex flex-col items-start gap-3 p-7 text-cream sm:p-10">
