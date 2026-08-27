@@ -263,7 +263,7 @@ export const dict: Record<Locale, Dictionary> = {
       catTown: "Around town",
       baseName: "The casas",
       pacific: "PACIFIC",
-      note: "A sketch, not a survey — the bearings are right, the distances aren't. Travel times are real ones, measured from our gate.",
+      note: "A sketch, not a survey — the bearings are right, the distances aren't. Driving times are approximate and assume dry-season roads; ask us before you plan a day around one.",
       directionsCta: "Get directions",
       mapsCta: "See on Google Maps",
       listingCta: "Fischer Tropitel on Google Maps",
@@ -301,7 +301,7 @@ export const dict: Record<Locale, Dictionary> = {
           id: "rainmaker",
           name: "Rainmaker Reserve",
           category: "nature",
-          travel: "25 min by car",
+          travel: "45 min by car",
           text: "A private rainforest reserve with hanging bridges strung through the canopy, marked hiking trails, and swimming holes under the falls. Wilder than the national park, and a fraction of the crowd.",
         },
         {
@@ -329,7 +329,7 @@ export const dict: Record<Locale, Dictionary> = {
           id: "nauyaca",
           name: "Nauyaca Waterfalls",
           category: "adventure",
-          travel: "1 hr 15 by car",
+          travel: "1 hr 30 by car",
           text: "Two falls, the upper one dropping about 45 metres into a pool wide enough to swim across. Hike in, ride in on horseback, or take the truck. It's the longest day on this map and the one people talk about afterwards.",
         },
         {
@@ -556,7 +556,7 @@ export const dict: Record<Locale, Dictionary> = {
       catTown: "En el pueblo",
       baseName: "Las casas",
       pacific: "PACÍFICO",
-      note: "Un croquis, no un plano — las direcciones son correctas, las distancias no. Los tiempos de viaje sí son reales, medidos desde nuestro portón.",
+      note: "Un croquis, no un plano — las direcciones son correctas, las distancias no. Los tiempos de manejo son aproximados y suponen caminos de temporada seca; pregúntenos antes de planear el día en función de uno.",
       directionsCta: "Cómo llegar",
       mapsCta: "Ver en Google Maps",
       listingCta: "Fischer Tropitel en Google Maps",
@@ -594,7 +594,7 @@ export const dict: Record<Locale, Dictionary> = {
           id: "rainmaker",
           name: "Reserva Rainmaker",
           category: "nature",
-          travel: "25 min en carro",
+          travel: "45 min en carro",
           text: "Una reserva privada de selva con puentes colgantes entre las copas de los árboles, senderos marcados para caminar y pozas para nadar bajo las cataratas. Más salvaje que el parque nacional y con una fracción de la gente.",
         },
         {
@@ -622,7 +622,7 @@ export const dict: Record<Locale, Dictionary> = {
           id: "nauyaca",
           name: "Cataratas Nauyaca",
           category: "adventure",
-          travel: "1 h 15 en carro",
+          travel: "1 h 30 en carro",
           text: "Dos cataratas; la de arriba cae unos 45 metros a una poza lo bastante ancha para cruzarla nadando. Se llega a pie, a caballo o en camión. Es el paseo más largo de este mapa y del que la gente habla después.",
         },
         {
