@@ -3,8 +3,6 @@
 import Cal, { getCalApi } from "@calcom/embed-react";
 import * as React from "react";
 
-import { Button } from "@/components/ui/button";
-
 /**
  * Cal.com booking. The Cal link (e.g. "fischer-tropitel/stay") comes from
  * NEXT_PUBLIC_CAL_LINK — a BUILD-time variable under static export. When it's
@@ -49,8 +47,10 @@ export function BookButton({
   useCalInit();
   if (!CAL_LINK) return null;
   return (
-    <Button
-      size="lg"
+    // A plain button, not the shadcn <Button>: the caller passes the site's
+    // own .btn classes and the two systems' radii and shadows would fight.
+    <button
+      type="button"
       className={className}
       data-cal-link={CAL_LINK}
       data-cal-config={JSON.stringify({
@@ -59,6 +59,6 @@ export function BookButton({
       })}
     >
       {children}
-    </Button>
+    </button>
   );
 }

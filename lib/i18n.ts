@@ -10,6 +10,16 @@ export interface CasaCopy {
   highlight?: string;
 }
 
+/** One marker on the area map. `id` keys into the coordinate table that lives
+ *  in components/area-map.tsx — copy is translated, geography is not. */
+export interface PlaceCopy {
+  id: string;
+  name: string;
+  category: "fishing" | "nature" | "adventure";
+  travel: string;
+  text: string;
+}
+
 export interface FormLabels {
   name: string;
   email: string;
@@ -39,6 +49,8 @@ interface Dictionary {
     cta: string;
     switchLabel: string;
     switchHref: string;
+    menu: string;
+    close: string;
   };
   hero: {
     eyebrow: string;
@@ -46,8 +58,11 @@ interface Dictionary {
     sub: string;
     ctaPrimary: string;
     ctaSecondary: string;
+    scrollCue: string;
+    imageAlt: string;
+    /** Three short proof points under the buttons. */
+    facts: string[];
   };
-  quickFacts: string[];
   highlights: {
     eyebrow: string;
     items: { title: string; text: string; cta: string; href: string }[];
@@ -64,9 +79,10 @@ interface Dictionary {
     beds: string;
     bath: string;
     kitchen: string;
-    airbnbCta: string;
     bookCta: string;
     askCta: string;
+    /** Label used whenever the button hands off to Airbnb. */
+    bookNowCta: string;
     note: string;
     list: CasaCopy[];
   };
@@ -74,13 +90,35 @@ interface Dictionary {
     eyebrow: string;
     title: string;
     sub: string;
-    items: { title: string; text: string }[];
+    /** Map chrome. */
+    filterAll: string;
+    filterFishing: string;
+    filterNature: string;
+    filterAdventure: string;
+    baseName: string;
+    baseMeta: string;
+    pacific: string;
+    note: string;
+    hint: string;
+    /** "Get directions" / "See on Google Maps" on the detail card. */
+    directionsCta: string;
+    mapsCta: string;
+    listingCta: string;
+    places: PlaceCopy[];
   };
   know: {
     eyebrow: string;
     title: string;
     sub: string;
     items: { title: string; text: string }[];
+  };
+  reviews: {
+    eyebrow: string;
+    title: string;
+    /** Credit line required when showing Google-sourced reviews. */
+    source: string;
+    readMore: string;
+    ratingLabel: string;
   };
   book: {
     eyebrow: string;
@@ -120,23 +158,24 @@ export const dict: Record<Locale, Dictionary> = {
       cta: "Plan your stay",
       switchLabel: "Español",
       switchHref: "/es/",
+      menu: "Open menu",
+      close: "Close menu",
     },
     hero: {
-      eyebrow: "Quepos, Costa Rica · Jungle casa rentals",
-      title:
-        "Three jungle casas above a waterfall, in the sportfishing capital of the world.",
-      sub: "Drink your morning coffee looking at a waterfall. Hike to hot springs. Fish the waters that made Quepos famous. Then come home to your own casa in the mountains — private pool included, monkeys not guaranteed but very likely.",
+      eyebrow: "Quepos, Costa Rica",
+      title: "Three casas on a mountain, above a waterfall.",
+      sub: "Wake up to the river. Walk to hot springs. Fish the waters that made Quepos famous — then come home to a house that's yours for the week.",
       ctaPrimary: "See the three casas",
-      ctaSecondary: "What to expect",
+      ctaSecondary: "Plan your stay",
+      scrollCue: "Scroll",
+      imageAlt:
+        "The Fischer Tropitel casas on their private mountain property above Quepos, Costa Rica",
+      facts: [
+        "Private pool",
+        "20-minute walk to hot springs",
+        "Sleeps 6 per casa — 12 across all three",
+      ],
     },
-    quickFacts: [
-      "Waterfall view from your morning coffee",
-      "Private pool on the property",
-      "20-minute hike to natural hot springs",
-      "Minutes from world-class sportfishing in Quepos",
-      "Manuel Antonio National Park nearby",
-      "Each casa sleeps about 6",
-    ],
     highlights: {
       eyebrow: "Life on the mountain",
       items: [
@@ -168,8 +207,9 @@ export const dict: Record<Locale, Dictionary> = {
           caption: "fully furnished casas on one private jungle property",
         },
         {
-          value: "~6",
-          caption: "guests per casa — rent one, or bring everyone and take all three",
+          value: "6 / 12",
+          caption:
+            "guests per casa, or twelve if you take the whole property",
         },
         {
           value: "20 min",
@@ -185,14 +225,14 @@ export const dict: Record<Locale, Dictionary> = {
       eyebrow: "The Casas",
       title: "Pick your casa",
       intro:
-        "Three fully furnished houses on one secluded mountain property. Each has two bedrooms, one bathroom, a full kitchen, and sleeps about six. Rent one — or bring everyone and take all three.",
+        "Three fully furnished houses on one secluded mountain property. Each has two bedrooms, one bathroom, a fully equipped kitchen, and sleeps about six — twelve if you take all three. We bring our own three kids down every chance we get, so it is built for families as much as for fishermen.",
       perNight: "/ night",
       beds: "2 bedrooms · sleeps ~6",
       bath: "1 bathroom",
       kitchen: "Fully equipped kitchen",
-      airbnbCta: "Book on Airbnb",
       bookCta: "Book",
       askCta: "Ask about dates",
+      bookNowCta: "Book now",
       note: "Good to know: the casas share one property, so if you book one, friendly neighbors may be staying in another. Rates are lower in the rainy season — ask us.",
       list: [
         {
@@ -216,30 +256,89 @@ export const dict: Record<Locale, Dictionary> = {
           deck: "Its own private deck",
           water: "No hot water (yet) — that's why it costs less",
           highlight:
-            "Cold-water showers only for now. In the Costa Rican heat, most guests barely notice — but we want you to know before you book.",
+            "The missing hot water is the only reason this one is $100 less a night — the house itself is every bit as nice as the other two. In the Costa Rican heat most guests barely notice, and we plan to add it.",
         },
       ],
     },
     area: {
       eyebrow: "Fishing & Adventure",
       title: "We came for the fishing. We stayed for everything else.",
-      sub: "Our family found Quepos on a fishing vacation and never really left. Now it's your turn.",
-      items: [
+      sub: "Our family found Quepos on a fishing vacation and never really left. It is a fishing town first, but there is plenty here for kids and for people who have never held a rod — here's everything within reach of the gate.",
+      filterAll: "Everything",
+      filterFishing: "Fishing",
+      filterNature: "Nature",
+      filterAdventure: "Adventure",
+      baseName: "The casas",
+      baseMeta: "You are here",
+      pacific: "PACIFIC",
+      note: "A sketch, not a survey — the bearings are right, the distances aren't. Travel times are real ones, measured from our gate.",
+      directionsCta: "Get directions",
+      mapsCta: "See on Google Maps",
+      listingCta: "Fischer Tropitel on Google Maps",
+      hint: "Pick a marker to see what's there and how far it is from your front door.",
+      places: [
         {
-          title: "Sportfishing out of Quepos",
-          text: "Quepos is famous worldwide for offshore fishing — it's the whole reason we fell in love with this place. We know local captains who can take you out for the day. Ask us and we'll help set it up.",
+          id: "quepos-marina",
+          name: "Marina Pez Vela, Quepos",
+          category: "fishing",
+          travel: "25 min by car",
+          text: "The reason we came to Costa Rica at all. Quepos is one of the world's great sailfish and marlin ports, and the fleet runs out of Marina Pez Vela year-round. Tell us when you're coming and we'll put you in touch with a captain we actually know.",
         },
         {
-          title: "Manuel Antonio National Park",
-          text: "One of Costa Rica's most-loved national parks — beaches, trails, sloths, and monkeys — is a short drive away.",
+          id: "hot-springs",
+          name: "Natural hot springs",
+          category: "nature",
+          travel: "20 min on foot",
+          text: "Follow the trail down from the casas and you reach natural hot springs in about twenty minutes. Our guests are welcome to use them. Bring sandals you don't mind getting muddy.",
         },
         {
-          title: "Hot springs hike",
-          text: "About 20 minutes on foot from the casas. Our guests get to use the springs — bring sandals and go soak.",
+          id: "manuel-antonio",
+          name: "Manuel Antonio National Park",
+          category: "nature",
+          travel: "35 min by car",
+          text: "Costa Rica's most-loved national park: rainforest trails that end at white-sand coves, with sloths, iguanas and three kinds of monkey along the way. Go early — it opens at seven and the wildlife knows it.",
         },
         {
-          title: "Zip lines, ATVs & jet skis",
-          text: "Plenty of excursions run nearby: zip-lining through the canopy, ATV tours in the mountains, and jet skiing on the coast.",
+          id: "playa-espadilla",
+          name: "Playa Espadilla",
+          category: "nature",
+          travel: "35 min by car",
+          text: "The long public beach just outside the park gates. This is the reliable sunset — soft sand, warm water, and somewhere to eat dinner two minutes' walk away.",
+        },
+        {
+          id: "rainmaker",
+          name: "Rainmaker Reserve",
+          category: "nature",
+          travel: "25 min by car",
+          text: "A private rainforest reserve with hanging bridges strung through the canopy, marked hiking trails, and swimming holes under the falls. Wilder than the national park, and a fraction of the crowd.",
+        },
+        {
+          id: "jet-ski",
+          name: "Jet skis & boat tours",
+          category: "adventure",
+          travel: "30 min by car",
+          text: "Jet ski rentals, catamaran days and sunset boat tours all run off the same stretch of coast as the fishing fleet. Good half-day for the kids when nobody feels like a full offshore trip.",
+        },
+        {
+          id: "canopy",
+          name: "Zip lines & ATV trails",
+          category: "adventure",
+          travel: "20 min by car",
+          text: "Canopy tours, ATV runs through the mountains and horseback rides all operate within twenty minutes of the gate. We'll book them for you rather than send you to a kiosk in town.",
+        },
+        {
+          id: "savegre",
+          name: "Rafting the Savegre",
+          category: "adventure",
+          travel: "45 min by car",
+          text: "Class II–III whitewater through rainforest — gentle enough for a first-timer, long enough to feel like a real day out. Most trips include lunch on the riverbank.",
+        },
+        {
+          id: "nauyaca",
+          name: "Nauyaca Waterfalls",
+          category: "adventure",
+          travel: "1 hr 15 by car",
+          text: "Two falls, the upper one dropping about 45 metres into a pool wide enough to swim across. Hike in, ride in on horseback, or take the truck. It's the longest day on this map and the one people talk about afterwards.",
         },
       ],
     },
@@ -265,6 +364,13 @@ export const dict: Record<Locale, Dictionary> = {
           text: "Dry season runs roughly December through April — that's prime time. The rainy season (April to December) is lush, green, and quieter, and getting up the mountain takes more patience.",
         },
       ],
+    },
+    reviews: {
+      eyebrow: "Guest reviews",
+      title: "What people say after they've stayed",
+      source: "From our Google Business Profile",
+      readMore: "Read all reviews on Google",
+      ratingLabel: "out of 5",
     },
     book: {
       eyebrow: "Booking",
@@ -316,23 +422,24 @@ export const dict: Record<Locale, Dictionary> = {
       cta: "Planee su estadía",
       switchLabel: "English",
       switchHref: "/en/",
+      menu: "Abrir menú",
+      close: "Cerrar menú",
     },
     hero: {
-      eyebrow: "Quepos, Costa Rica · Casas de alquiler en la selva",
-      title:
-        "Tres casas en la selva sobre una catarata, en la capital mundial de la pesca deportiva.",
-      sub: "Tómese el café de la mañana viendo una catarata. Camine hasta las aguas termales. Pesque en las aguas que hicieron famoso a Quepos. Y vuelva a su propia casa en la montaña — piscina privada incluida; los monos no están garantizados, pero son muy probables.",
+      eyebrow: "Quepos, Costa Rica",
+      title: "Tres casas en la montaña, sobre una catarata.",
+      sub: "Despierte con el río. Camine a las aguas termales. Pesque en las aguas que hicieron famoso a Quepos — y vuelva a una casa que es suya toda la semana.",
       ctaPrimary: "Ver las tres casas",
-      ctaSecondary: "Qué esperar",
+      ctaSecondary: "Planee su estadía",
+      scrollCue: "Baje",
+      imageAlt:
+        "Las casas de Fischer Tropitel en su propiedad privada en la montaña sobre Quepos, Costa Rica",
+      facts: [
+        "Piscina privada",
+        "20 minutos a pie a las aguas termales",
+        "6 personas por casa — 12 en las tres",
+      ],
     },
-    quickFacts: [
-      "Vista a la catarata desde su café de la mañana",
-      "Piscina privada en la propiedad",
-      "Caminata de 20 minutos a aguas termales naturales",
-      "A minutos de la pesca deportiva de clase mundial en Quepos",
-      "Cerca del Parque Nacional Manuel Antonio",
-      "Cada casa aloja a unas 6 personas",
-    ],
     highlights: {
       eyebrow: "La vida en la montaña",
       items: [
@@ -364,8 +471,9 @@ export const dict: Record<Locale, Dictionary> = {
           caption: "casas totalmente amuebladas en una propiedad privada en la selva",
         },
         {
-          value: "~6",
-          caption: "huéspedes por casa — alquile una, o venga con todos y tome las tres",
+          value: "6 / 12",
+          caption:
+            "huéspedes por casa, o doce si toma la propiedad entera",
         },
         {
           value: "20 min",
@@ -381,12 +489,12 @@ export const dict: Record<Locale, Dictionary> = {
       eyebrow: "Las Casas",
       title: "Elija su casa",
       intro:
-        "Tres casas totalmente amuebladas en una propiedad privada en la montaña. Cada una tiene dos habitaciones, un baño, cocina completa y espacio para unas seis personas. Alquile una — o venga con todos y tome las tres.",
+        "Tres casas totalmente amuebladas en una propiedad privada en la montaña. Cada una tiene dos habitaciones, un baño, cocina totalmente equipada y espacio para unas seis personas — doce si toma las tres. Bajamos con nuestros tres hijos cada vez que podemos, así que está pensada tanto para familias como para pescadores.",
       perNight: "/ noche",
       beds: "2 habitaciones · ~6 personas",
       bath: "1 baño",
       kitchen: "Cocina totalmente equipada",
-      airbnbCta: "Reservar en Airbnb",
+      bookNowCta: "Reservar ahora",
       bookCta: "Reservar",
       askCta: "Consultar fechas",
       note: "Bueno saber: las casas comparten una misma propiedad, así que si reserva una, puede haber vecinos amistosos en otra. Las tarifas bajan en la temporada de lluvias — pregúntenos.",
@@ -412,30 +520,89 @@ export const dict: Record<Locale, Dictionary> = {
           deck: "Terraza privada propia",
           water: "Sin agua caliente (por ahora) — por eso cuesta menos",
           highlight:
-            "Por ahora solo hay duchas de agua fría. Con el calor de Costa Rica casi ni se nota — pero queremos que lo sepa antes de reservar.",
+            "La falta de agua caliente es la única razón por la que esta cuesta $100 menos por noche — la casa en sí es igual de linda que las otras dos. Con el calor de Costa Rica casi nadie lo nota, y pensamos instalarla.",
         },
       ],
     },
     area: {
       eyebrow: "Pesca y Aventura",
       title: "Vinimos por la pesca. Nos quedamos por todo lo demás.",
-      sub: "Nuestra familia descubrió Quepos en unas vacaciones de pesca y nunca se fue del todo. Ahora le toca a usted.",
-      items: [
+      sub: "Nuestra familia descubrió Quepos en unas vacaciones de pesca y nunca se fue del todo. Es un pueblo de pesca ante todo, pero hay de sobra para los niños y para quien nunca ha tomado una caña — esto es todo lo que queda al alcance del portón.",
+      filterAll: "Todo",
+      filterFishing: "Pesca",
+      filterNature: "Naturaleza",
+      filterAdventure: "Aventura",
+      baseName: "Las casas",
+      baseMeta: "Usted está aquí",
+      pacific: "PACÍFICO",
+      note: "Un croquis, no un plano — las direcciones son correctas, las distancias no. Los tiempos de viaje sí son reales, medidos desde nuestro portón.",
+      directionsCta: "Cómo llegar",
+      mapsCta: "Ver en Google Maps",
+      listingCta: "Fischer Tropitel en Google Maps",
+      hint: "Elija un punto para ver qué hay allí y a qué distancia queda de su puerta.",
+      places: [
         {
-          title: "Pesca deportiva desde Quepos",
-          text: "Quepos es famoso en el mundo entero por la pesca mar adentro — es la razón por la que nos enamoramos de este lugar. Conocemos capitanes locales que pueden llevarlo a pescar por el día. Pregúntenos y se lo coordinamos.",
+          id: "quepos-marina",
+          name: "Marina Pez Vela, Quepos",
+          category: "fishing",
+          travel: "25 min en carro",
+          text: "La razón por la que vinimos a Costa Rica. Quepos es uno de los grandes puertos de pez vela y marlín del mundo, y la flota sale de Marina Pez Vela todo el año. Díganos cuándo viene y lo ponemos en contacto con un capitán que de verdad conocemos.",
         },
         {
-          title: "Parque Nacional Manuel Antonio",
-          text: "Uno de los parques nacionales más queridos de Costa Rica — playas, senderos, perezosos y monos — está a un corto viaje en carro.",
+          id: "hot-springs",
+          name: "Aguas termales naturales",
+          category: "nature",
+          travel: "20 min a pie",
+          text: "Baje por el sendero desde las casas y en unos veinte minutos llega a aguas termales naturales. Nuestros huéspedes pueden usarlas. Traiga sandalias que no le importe embarrar.",
         },
         {
-          title: "Caminata a las aguas termales",
-          text: "A unos 20 minutos a pie de las casas. Nuestros huéspedes pueden usar las termales — traiga sandalias y vaya a remojarse.",
+          id: "manuel-antonio",
+          name: "Parque Nacional Manuel Antonio",
+          category: "nature",
+          travel: "35 min en carro",
+          text: "El parque nacional más querido de Costa Rica: senderos de selva que terminan en calas de arena blanca, con perezosos, iguanas y tres especies de mono por el camino. Vaya temprano — abre a las siete y la fauna lo sabe.",
         },
         {
-          title: "Canopy, cuadraciclos y motos acuáticas",
-          text: "Cerca hay excursiones de sobra: canopy entre los árboles, tours en cuadraciclo por la montaña y motos acuáticas en la costa.",
+          id: "playa-espadilla",
+          name: "Playa Espadilla",
+          category: "nature",
+          travel: "35 min en carro",
+          text: "La playa pública larga justo afuera del parque. Este es el atardecer seguro — arena suave, agua tibia y dónde cenar a dos minutos a pie.",
+        },
+        {
+          id: "rainmaker",
+          name: "Reserva Rainmaker",
+          category: "nature",
+          travel: "25 min en carro",
+          text: "Una reserva privada de selva con puentes colgantes entre las copas de los árboles, senderos marcados para caminar y pozas para nadar bajo las cataratas. Más salvaje que el parque nacional y con una fracción de la gente.",
+        },
+        {
+          id: "jet-ski",
+          name: "Motos acuáticas y paseos en bote",
+          category: "adventure",
+          travel: "30 min en carro",
+          text: "El alquiler de motos acuáticas, los días en catamarán y los paseos al atardecer salen del mismo tramo de costa que la flota de pesca. Buen medio día con los niños cuando nadie quiere una salida mar adentro completa.",
+        },
+        {
+          id: "canopy",
+          name: "Canopy y cuadraciclos",
+          category: "adventure",
+          travel: "20 min en carro",
+          text: "Tours de canopy, recorridos en cuadraciclo por la montaña y paseos a caballo operan a menos de veinte minutos del portón. Se los reservamos nosotros en vez de mandarlo a un puesto en el pueblo.",
+        },
+        {
+          id: "savegre",
+          name: "Rafting en el Savegre",
+          category: "adventure",
+          travel: "45 min en carro",
+          text: "Rápidos clase II–III entre la selva — suaves para principiantes y largos como para sentirse un día completo. Casi todos los tours incluyen almuerzo a la orilla del río.",
+        },
+        {
+          id: "nauyaca",
+          name: "Cataratas Nauyaca",
+          category: "adventure",
+          travel: "1 h 15 en carro",
+          text: "Dos cataratas; la de arriba cae unos 45 metros a una poza lo bastante ancha para cruzarla nadando. Se llega a pie, a caballo o en camión. Es el paseo más largo de este mapa y del que la gente habla después.",
         },
       ],
     },
@@ -461,6 +628,13 @@ export const dict: Record<Locale, Dictionary> = {
           text: "La temporada seca va más o menos de diciembre a abril — es la mejor época. La temporada de lluvias (de abril a diciembre) es verde, exuberante y más tranquila, y subir la montaña requiere más paciencia.",
         },
       ],
+    },
+    reviews: {
+      eyebrow: "Opiniones de huéspedes",
+      title: "Lo que dicen después de quedarse",
+      source: "De nuestro perfil de Google Business",
+      readMore: "Ver todas las opiniones en Google",
+      ratingLabel: "de 5",
     },
     book: {
       eyebrow: "Reservas",

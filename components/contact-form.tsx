@@ -2,7 +2,6 @@
 
 import * as React from "react";
 
-import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
@@ -30,23 +29,40 @@ export function ContactForm({ labels }: { labels: FormLabels }) {
 
     try {
       const res = await fetch("/api/contact", { method: "POST", body: data });
-      const json = (await res.json()) as { ok: boolean; error?: string };
 
-      if (!res.ok || !json.ok) {
-        throw new Error(json.error ?? labels.genericError);
+      /*
+       * Only the Worker's own `error` string is ever shown to a visitor.
+       * Anything else — a Cloudflare error page, an HTML 404, a network
+       * failure — is a message written for us, not for them, so it becomes
+       * the generic line instead. Before this guard, a non-JSON response put
+       * `Unexpected token 'S', "Server act"... is not valid JSON` on the page
+       * under the contact form.
+       */
+      let json: { ok?: boolean; error?: string } | null = null;
+      try {
+        json = (await res.json()) as { ok?: boolean; error?: string };
+      } catch {
+        json = null;
+      }
+
+      if (!res.ok || !json?.ok) {
+        setStatus("error");
+        setError(json?.error ?? labels.genericError);
+        return;
       }
 
       setStatus("sent");
       form.reset();
-    } catch (err) {
+    } catch {
+      // Network-level failure: offline, DNS, CORS. Nothing quotable here.
       setStatus("error");
-      setError(err instanceof Error ? err.message : labels.genericError);
+      setError(labels.genericError);
     }
   }
 
   if (status === "sent") {
     return (
-      <div className="rounded-lg border bg-card p-6" role="status">
+      <div className="rounded-2xl border border-forest/20 bg-secondary/60 p-6" role="status">
         <p className="font-medium">{labels.successTitle}</p>
         <p className="text-muted-foreground mt-1 text-sm">
           {labels.successBody}
@@ -101,9 +117,13 @@ export function ContactForm({ labels }: { labels: FormLabels }) {
         </p>
       ) : null}
 
-      <Button type="submit" size="lg" disabled={status === "sending"}>
+      <button
+        type="submit"
+        disabled={status === "sending"}
+        className="btn btn-canopy btn-lg mt-2 justify-center disabled:cursor-not-allowed disabled:opacity-60"
+      >
         {status === "sending" ? labels.sending : labels.submit}
-      </Button>
+      </button>
     </form>
   );
 }

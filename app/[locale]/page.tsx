@@ -1,20 +1,19 @@
 import Image from "next/image";
-import {
-  ArrowRight,
-  Car,
-  CloudRain,
-  Leaf,
-  Mail,
-  MapPin,
-  Phone,
-  Zap,
-} from "lucide-react";
+import { Mail, MapPin, Phone } from "lucide-react";
 
 import { Item, Lift, Reveal, Stagger } from "@/components/animate";
+import { AreaMap } from "@/components/area-map";
 import { BookButton, BookingCalendar } from "@/components/booking";
-import { Highlights } from "@/components/highlights";
-import { SiteMenu } from "@/components/mobile-nav";
+import { Logo } from "@/components/brand";
+import { RidgeEdge } from "@/components/canopy";
 import { ContactForm } from "@/components/contact-form";
+import { Hero } from "@/components/hero";
+import { Highlights } from "@/components/highlights";
+import { KnowNotes } from "@/components/know";
+import { Reviews } from "@/components/reviews";
+import { SiteHeader } from "@/components/site-header";
+import { Btn } from "@/components/ui/btn";
+import { Eyebrow } from "@/components/ui/eyebrow";
 import { dict, type Locale } from "@/lib/i18n";
 
 const PHONE = "+1 (715) 348-4887";
@@ -25,9 +24,22 @@ const EMAIL = "madilyn.fischer1991@gmail.com";
 // the inline calendar section appears and casa buttons open the booking popup.
 const CAL_CONFIGURED = Boolean(process.env.NEXT_PUBLIC_CAL_LINK);
 
-// TODO: add each casa's Airbnb listing URL when the individual listings are
-// published. An Airbnb link takes priority over the Cal.com popup.
-const AIRBNB_URLS: (string | null)[] = [null, null, null];
+// PLACEHOLDER LINKS — these point at Airbnb's homepage, not at the casas.
+// Madi had one combined listing and needs to split it into three; drop each
+// listing URL in here, in the same order as t.casas.list (Casa Cascada, Loads
+// of Toads, Casa Verde) and the buttons start working. Setting an entry to
+// null falls the button back to the contact form.
+const AIRBNB_URLS: (string | null)[] = [
+  "https://www.airbnb.com",
+  "https://www.airbnb.com",
+  "https://www.airbnb.com",
+];
+
+// Search link rather than the canonical listing URL, because the profile
+// resolves by name today and this needs no maintenance. Replace it with the
+// share link from the Google Business Profile when someone has it to hand.
+const GOOGLE_LISTING_URL =
+  "https://www.google.com/maps/search/?api=1&query=Fischer+Tropitel";
 
 const CASA_IMAGES = [
   { src: "/images/casa-cascada.jpg", alt: "Casa Cascada exterior" },
@@ -41,46 +53,8 @@ const HIGHLIGHT_IMAGES = [
   { src: "/images/property-3.jpg", alt: "Casa Verde against the jungle" },
 ];
 
-// TODO: swap for real activity photos (boats, park, springs) when supplied —
-// these are property shots standing in.
-const AREA_IMAGES = [
-  "/images/property-2.jpg",
-  "/images/hero.jpg",
-  "/images/property-3.jpg",
-  "/images/casa-cascada.jpg",
-];
-
-const KNOW_ICONS = [Car, Zap, Leaf, CloudRain];
-
-/*
- * The signature button shape of this art direction: a pill rounded on the
- * top-left and bottom-right corners only, extrabold uppercase label, arrow.
- */
-const PILL =
-  "inline-flex items-center gap-2 rounded-tl-[24px] rounded-br-[24px] px-6 py-3 text-sm font-extrabold uppercase tracking-wider transition-colors";
-const PILL_ON_DARK = `${PILL} bg-white text-emerald-800 hover:bg-amber-100`;
-const PILL_ON_LIGHT = `${PILL} bg-emerald-800 text-white hover:bg-emerald-700`;
-
-const TEXT_LINK =
-  "inline-flex items-center gap-2 text-sm font-extrabold uppercase tracking-wider text-emerald-700 hover:text-emerald-900";
-
-function Eyebrow({
-  children,
-  onDark = false,
-}: {
-  children: React.ReactNode;
-  onDark?: boolean;
-}) {
-  return (
-    <p
-      className={`text-sm font-extrabold uppercase tracking-[0.18em] ${
-        onDark ? "text-amber-400" : "text-emerald-700"
-      }`}
-    >
-      {children}
-    </p>
-  );
-}
+/** The fixed header is 84px, so anchored sections need to clear it. */
+const ANCHOR = "scroll-mt-[84px]";
 
 export default async function Home({
   params,
@@ -95,355 +69,341 @@ export default async function Home({
     ...item,
   }));
 
+  const navLinks = [
+    { href: "#casas", label: t.nav.casas },
+    { href: "#area", label: t.nav.area },
+    { href: "#know", label: t.nav.know },
+    { href: "#contact", label: t.nav.contact },
+  ];
+
+  const ctaHref = CAL_CONFIGURED ? "#book" : "#contact";
+
   return (
     <>
-      {/* Solid brand header: wordmark left; CTA + accent menu square right. */}
-      <header className="sticky top-0 z-50 bg-emerald-950 text-white">
-        <div className="relative mx-auto flex h-[70px] max-w-7xl items-center justify-between pl-4">
-          <a href="#top" className="text-xl font-bold tracking-tight">
-            Fischer <span className="text-amber-400">Tropitel</span>
-          </a>
-          <div className="flex h-[70px] items-center gap-5">
-            <a
-              href={t.nav.switchHref}
-              className="hidden text-sm font-extrabold uppercase tracking-wider text-emerald-200 hover:text-white sm:block"
-            >
-              {t.nav.switchLabel}
-            </a>
-            <a
-              href={CAL_CONFIGURED ? "#book" : "#contact"}
-              className={`hidden sm:inline-flex ${PILL_ON_DARK}`}
-            >
-              {t.nav.cta}
-            </a>
-            <SiteMenu
-              links={[
-                { href: "#casas", label: t.nav.casas },
-                { href: "#area", label: t.nav.area },
-                { href: "#know", label: t.nav.know },
-                { href: "#contact", label: t.nav.contact },
-              ]}
-              switchLabel={t.nav.switchLabel}
-              switchHref={t.nav.switchHref}
-            />
-          </div>
-        </div>
-      </header>
+      <SiteHeader
+        links={navLinks}
+        cta={t.nav.cta}
+        ctaHref={ctaHref}
+        switchLabel={t.nav.switchLabel}
+        switchHref={t.nav.switchHref}
+        menuLabel={t.nav.menu}
+        closeLabel={t.nav.close}
+      />
 
-      <main id="top">
-        {/* Announcement band: centered display type over the brand color. */}
-        <section className="bg-emerald-950 text-white">
-          <div className="mx-auto max-w-4xl px-4 py-16 text-center sm:py-24">
-            <Reveal immediate>
-              <p className="text-sm font-extrabold uppercase tracking-[0.18em] text-amber-400">
-                {t.hero.eyebrow}
-              </p>
-            </Reveal>
-            <Reveal immediate delay={0.1}>
-              <h1 className="mt-6 text-4xl font-medium leading-[1.2] tracking-tight sm:text-5xl">
-                {t.hero.title}
-              </h1>
-            </Reveal>
-            <Reveal immediate delay={0.2}>
-              <p className="mx-auto mt-6 max-w-2xl text-lg text-emerald-100">
-                {t.hero.sub}
-              </p>
-            </Reveal>
-            <Reveal immediate delay={0.3}>
-              <div className="mt-9 flex justify-center">
-                <a href="#casas" className={PILL_ON_DARK}>
-                  {t.hero.ctaPrimary}
-                  <ArrowRight className="h-4 w-4" aria-hidden />
-                </a>
-              </div>
-            </Reveal>
-          </div>
-        </section>
+      <main>
+        <Hero
+          eyebrow={t.hero.eyebrow}
+          title={t.hero.title}
+          sub={t.hero.sub}
+          ctaPrimary={t.hero.ctaPrimary}
+          ctaPrimaryHref="#casas"
+          ctaSecondary={t.hero.ctaSecondary}
+          ctaSecondaryHref={ctaHref}
+          facts={t.hero.facts}
+          scrollCue={t.hero.scrollCue}
+          imageAlt={t.hero.imageAlt}
+        />
 
-        {/* Image carousel with white content card + numeric pagination. */}
-        <section aria-label={t.highlights.eyebrow}>
-          <Highlights slides={slides} />
-        </section>
+        {/*
+          Everything below the hero is pulled up over the pinned stage, led by
+          the ridge. This IS the "ground rising to meet you" — the hero used to
+          fake it with an empty cream panel, which meant a full screen of blank
+          had to scroll past before any content appeared.
 
-        {/* Stats band. */}
-        <section className="bg-background">
-          <div className="mx-auto max-w-7xl px-4 py-20">
-            <Reveal>
-              <Eyebrow>{t.stats.eyebrow}</Eyebrow>
-            </Reveal>
-            <Stagger className="mt-12 grid grid-cols-2 gap-x-8 gap-y-12 lg:grid-cols-4">
-              {t.stats.items.map(({ value, caption }) => (
-                <Item key={caption}>
-                  <p className="text-4xl font-extrabold tracking-tight text-emerald-700 sm:text-5xl">
-                    {value}
-                  </p>
-                  <p className="mt-3 text-muted-foreground">{caption}</p>
-                </Item>
-              ))}
-            </Stagger>
-          </div>
-        </section>
+          The two numbers are a pair: the hero is 170svh, this pulls back 55svh,
+          so the first content sits 115svh down the document and starts rising
+          the moment you scroll. Change one and change the other.
+        */}
+        <div className="relative z-10 -mt-[55svh]">
+          <RidgeEdge
+            className="block h-[70px] w-full sm:h-[110px]"
+            fill="var(--background)"
+          />
 
-        {/* The casas — stacked full-width image cards. */}
-        <section id="casas" className="scroll-mt-[70px] bg-background">
-          <div className="mx-auto max-w-7xl px-4 py-16">
-            <Reveal>
-              <div className="max-w-3xl">
-                <h2 className="text-3xl font-medium tracking-tight sm:text-5xl">
-                  {t.casas.title}
-                </h2>
-                <p className="mt-5 text-lg text-muted-foreground">
-                  {t.casas.intro}
-                </p>
-              </div>
-            </Reveal>
-
-            <div className="mt-12 grid gap-6">
-              {t.casas.list.map((casa, i) => (
-                <Reveal key={casa.name}>
-                  <Lift>
-                    <article className="relative min-h-[460px] overflow-hidden rounded-2xl bg-emerald-950">
-                      <Image
-                        src={CASA_IMAGES[i].src}
-                        alt={CASA_IMAGES[i].alt}
-                        fill
-                        sizes="(min-width: 1280px) 1248px, 100vw"
-                        className="object-cover"
-                      />
-                      <div className="absolute inset-0 bg-gradient-to-t from-emerald-950/95 via-emerald-950/35 to-transparent" />
-                      <div className="absolute inset-x-0 bottom-0 flex flex-col items-start gap-3 p-6 text-white sm:p-10">
-                        <h3 className="text-2xl font-bold tracking-tight sm:text-3xl">
-                          {casa.name}
-                        </h3>
-                        <p className="text-lg font-bold text-amber-300">
-                          {casa.price}
-                          <span className="text-sm font-normal text-white/80">
-                            {" "}
-                            {t.casas.perNight}
-                          </span>
-                        </p>
-                        <p className="max-w-xl text-emerald-50">{casa.tagline}</p>
-                        <p className="max-w-xl text-sm uppercase tracking-wider text-white/75">
-                          {t.casas.beds} · {t.casas.bath} · {casa.water} ·{" "}
-                          {casa.deck}
-                        </p>
-                        {casa.highlight ? (
-                          <p className="max-w-xl rounded-xl bg-amber-400/15 p-3 text-sm text-amber-200">
-                            {casa.highlight}
-                          </p>
-                        ) : null}
-                        <div className="mt-3">
-                          {AIRBNB_URLS[i] ? (
-                            <a
-                              href={AIRBNB_URLS[i]}
-                              target="_blank"
-                              rel="noopener noreferrer"
-                              className={PILL_ON_DARK}
-                            >
-                              {t.casas.airbnbCta}
-                              <ArrowRight className="h-4 w-4" aria-hidden />
-                            </a>
-                          ) : CAL_CONFIGURED ? (
-                            <BookButton
-                              className={`h-auto ${PILL_ON_DARK} rounded-tr-none rounded-bl-none`}
-                              notes={casa.name}
-                            >
-                              {t.casas.bookCta} {casa.name}
-                              <ArrowRight className="h-4 w-4" aria-hidden />
-                            </BookButton>
-                          ) : (
-                            <a href="#contact" className={PILL_ON_DARK}>
-                              {t.casas.askCta}
-                              <ArrowRight className="h-4 w-4" aria-hidden />
-                            </a>
-                          )}
-                        </div>
-                      </div>
-                    </article>
-                  </Lift>
-                </Reveal>
-              ))}
-            </div>
-
-            <Reveal>
-              <p className="mt-8 max-w-2xl text-sm text-muted-foreground">
-                {t.casas.note}
-              </p>
-            </Reveal>
-          </div>
-        </section>
-
-        {/* Fishing & adventure — image-topped insight cards. */}
-        <section id="area" className="scroll-mt-[70px] border-t bg-background">
-          <div className="mx-auto max-w-7xl px-4 py-16">
-            <Reveal>
-              <div className="max-w-3xl">
-                <Eyebrow>{t.area.eyebrow}</Eyebrow>
-                <h2 className="mt-4 text-3xl font-medium tracking-tight sm:text-5xl">
-                  {t.area.title}
-                </h2>
-                <p className="mt-5 text-lg text-muted-foreground">{t.area.sub}</p>
-              </div>
-            </Reveal>
-            <Stagger className="mt-12 grid gap-6 sm:grid-cols-2">
-              {t.area.items.map(({ title, text }, i) => (
-                <Item
-                  key={title}
-                  className="overflow-hidden rounded-2xl border bg-card"
-                >
-                  <div className="relative h-52">
-                    <Image
-                      src={AREA_IMAGES[i]}
-                      alt=""
-                      fill
-                      sizes="(min-width: 640px) 50vw, 100vw"
-                      className="object-cover"
-                    />
-                  </div>
-                  <div className="p-7">
-                    <h3 className="text-xl font-bold tracking-tight sm:text-2xl">
-                      {title}
-                    </h3>
-                    <p className="mt-3 text-muted-foreground">{text}</p>
-                    <a href="#contact" className={`mt-5 ${TEXT_LINK}`}>
-                      {t.casas.askCta}
-                      <ArrowRight className="h-4 w-4" aria-hidden />
-                    </a>
-                  </div>
-                </Item>
-              ))}
-            </Stagger>
-          </div>
-        </section>
-
-        {/* Know before you go — brand-color band. */}
-        <section
-          id="know"
-          className="scroll-mt-[70px] bg-emerald-950 text-white"
-        >
-          <div className="mx-auto max-w-7xl px-4 py-20">
-            <Reveal>
-              <div className="max-w-3xl">
-                <Eyebrow onDark>{t.know.eyebrow}</Eyebrow>
-                <h2 className="mt-4 text-3xl font-medium tracking-tight sm:text-5xl">
-                  {t.know.title}
-                </h2>
-                <p className="mt-5 text-lg text-emerald-100">{t.know.sub}</p>
-              </div>
-            </Reveal>
-            <Stagger className="mt-14 grid gap-6 sm:grid-cols-2">
-              {t.know.items.map(({ title, text }, i) => {
-                const Icon = KNOW_ICONS[i];
-                return (
-                  <Item
-                    key={title}
-                    className="rounded-2xl border border-white/15 bg-white/5 p-8"
-                  >
-                    <span className="flex h-12 w-12 items-center justify-center rounded-tl-[20px] rounded-br-[20px] bg-amber-400 text-emerald-950">
-                      <Icon className="h-5 w-5" aria-hidden />
-                    </span>
-                    <h3 className="mt-5 text-xl font-bold tracking-tight sm:text-2xl">
-                      {title}
-                    </h3>
-                    <p className="mt-3 text-emerald-100">{text}</p>
+          {/* Stats band — the first thing the rising ground reveals. */}
+          <section className="bg-background">
+            <div className="mx-auto max-w-7xl px-5 py-20 sm:px-8 sm:py-24">
+              <Reveal>
+                <Eyebrow>{t.stats.eyebrow}</Eyebrow>
+              </Reveal>
+              <Stagger className="mt-12 grid grid-cols-2 gap-x-8 gap-y-12 lg:grid-cols-4">
+                {t.stats.items.map(({ value, caption }) => (
+                  <Item key={caption}>
+                    <p className="font-display text-4xl font-normal text-forest sm:text-5xl">
+                      {value}
+                    </p>
+                    <p className="mt-3 text-[0.9375rem] leading-relaxed text-muted-foreground">
+                      {caption}
+                    </p>
                   </Item>
-                );
-              })}
-            </Stagger>
-          </div>
-        </section>
+                ))}
+              </Stagger>
+            </div>
+          </section>
 
-        {/* Booking — renders only once NEXT_PUBLIC_CAL_LINK is set at build. */}
-        {CAL_CONFIGURED ? (
-          <section id="book" className="scroll-mt-[70px] bg-background">
-            <div className="mx-auto max-w-7xl px-4 py-16">
+          {/* Image carousel with a content card and numeric pagination. */}
+          <section aria-label={t.highlights.eyebrow}>
+            <Highlights slides={slides} />
+          </section>
+
+          {/* The casas — stacked full-width image cards. */}
+          <section id="casas" className={`${ANCHOR} bg-background`}>
+            <div className="mx-auto max-w-7xl px-5 py-20 sm:px-8 sm:py-24">
               <Reveal>
                 <div className="max-w-3xl">
-                  <Eyebrow>{t.book.eyebrow}</Eyebrow>
-                  <h2 className="mt-4 text-3xl font-medium tracking-tight sm:text-5xl">
-                    {t.book.title}
+                  <Eyebrow>{t.casas.eyebrow}</Eyebrow>
+                  <h2 className="mt-6 font-display text-[2rem] leading-[1.1] font-normal text-canopy sm:text-[2.75rem]">
+                    {t.casas.title}
                   </h2>
-                  <p className="mt-5 text-lg text-muted-foreground">
-                    {t.book.sub}
+                  <p className="mt-6 text-lg leading-relaxed text-muted-foreground">
+                    {t.casas.intro}
                   </p>
                 </div>
               </Reveal>
-              <Reveal delay={0.1}>
-                <div className="mt-10 rounded-2xl border bg-card p-2 sm:p-4">
-                  <BookingCalendar />
+
+              <div className="mt-14 grid gap-7">
+                {t.casas.list.map((casa, i) => (
+                  <Reveal key={casa.name}>
+                    <Lift>
+                      <article className="relative min-h-[480px] overflow-hidden rounded-[28px] bg-canopy-deep">
+                        <Image
+                          src={CASA_IMAGES[i].src}
+                          alt={CASA_IMAGES[i].alt}
+                          fill
+                          sizes="(min-width: 1280px) 1248px, 100vw"
+                          className="object-cover"
+                        />
+                        <div className="absolute inset-0 bg-gradient-to-t from-canopy-deep via-canopy-deep/45 to-transparent" />
+                        <div className="absolute inset-x-0 bottom-0 flex flex-col items-start gap-3 p-7 text-cream sm:p-10">
+                          <div className="flex flex-wrap items-baseline gap-x-4 gap-y-1">
+                            <h3 className="font-display text-2xl leading-tight font-normal sm:text-4xl">
+                              {casa.name}
+                            </h3>
+                            <p className="font-display text-xl text-sun sm:text-2xl">
+                              {casa.price}
+                              <span className="ml-1 font-sans text-sm text-cream/70">
+                                {t.casas.perNight}
+                              </span>
+                            </p>
+                          </div>
+                          <p className="max-w-xl text-lg text-cream/85">
+                            {casa.tagline}
+                          </p>
+                          <p className="max-w-xl text-[0.8125rem] text-cream/60">
+                            {t.casas.beds} · {t.casas.bath} · {t.casas.kitchen}{" "}
+                            · {casa.water} · {casa.deck}
+                          </p>
+                          {/* Casa Verde's cold-water note. Deliberately quiet:
+                            the fact is already stated plainly in the spec line
+                            above, so this only adds the reason. */}
+                          {casa.highlight ? (
+                            <p className="max-w-xl border-l border-cream/25 pl-4 text-sm leading-relaxed text-cream/55">
+                              {casa.highlight}
+                            </p>
+                          ) : null}
+                          <div className="mt-3">
+                            {AIRBNB_URLS[i] ? (
+                              <Btn
+                                href={AIRBNB_URLS[i] as string}
+                                target="_blank"
+                                rel="noopener noreferrer"
+                                variant="stone"
+                              >
+                                {t.casas.bookNowCta}
+                              </Btn>
+                            ) : CAL_CONFIGURED ? (
+                              <BookButton
+                                className="btn btn-stone"
+                                notes={casa.name}
+                              >
+                                {t.casas.bookCta} {casa.name}
+                              </BookButton>
+                            ) : (
+                              <Btn href="#contact" variant="stone">
+                                {t.casas.askCta}
+                              </Btn>
+                            )}
+                          </div>
+                        </div>
+                      </article>
+                    </Lift>
+                  </Reveal>
+                ))}
+              </div>
+
+              <Reveal>
+                <p className="mt-9 max-w-2xl text-[0.9375rem] leading-relaxed text-muted-foreground">
+                  {t.casas.note}
+                </p>
+              </Reveal>
+            </div>
+          </section>
+
+          {/* Fishing & adventure — the interactive area map. */}
+          <section id="area" className={`${ANCHOR} bg-secondary`}>
+            <div className="mx-auto max-w-7xl px-5 py-20 sm:px-8 sm:py-24">
+              <Reveal>
+                <div className="max-w-3xl">
+                  <Eyebrow>{t.area.eyebrow}</Eyebrow>
+                  <h2 className="mt-6 font-display text-[2rem] leading-[1.1] font-normal text-canopy sm:text-[2.75rem]">
+                    {t.area.title}
+                  </h2>
+                  <p className="mt-6 text-lg leading-relaxed text-muted-foreground">
+                    {t.area.sub}
+                  </p>
+                </div>
+              </Reveal>
+              <Reveal delay={0.08}>
+                <div className="mt-12">
+                  <AreaMap
+                    places={t.area.places}
+                    labels={{
+                      all: t.area.filterAll,
+                      fishing: t.area.filterFishing,
+                      nature: t.area.filterNature,
+                      adventure: t.area.filterAdventure,
+                      baseName: t.area.baseName,
+                      baseMeta: t.area.baseMeta,
+                      note: t.area.note,
+                      hint: t.area.hint,
+                      pacific: t.area.pacific,
+                      cta: t.casas.askCta,
+                      ctaHref: "#contact",
+                      directionsCta: t.area.directionsCta,
+                      mapsCta: t.area.mapsCta,
+                      listingUrl: GOOGLE_LISTING_URL,
+                      listingCta: t.area.listingCta,
+                    }}
+                  />
                 </div>
               </Reveal>
             </div>
           </section>
-        ) : null}
 
-        {/* Contact */}
-        <section
-          id="contact"
-          className="scroll-mt-[70px] border-t bg-background"
-        >
-          <div className="mx-auto grid max-w-7xl gap-12 px-4 py-16 lg:grid-cols-2">
-            <Reveal>
-              <Eyebrow>{t.contact.eyebrow}</Eyebrow>
-              <h2 className="mt-4 text-3xl font-medium tracking-tight sm:text-5xl">
-                {t.contact.title}
-              </h2>
-              <p className="mt-5 text-lg text-muted-foreground">
-                {t.contact.sub}
-              </p>
-              <ul className="mt-8 grid gap-4">
-                <li className="flex items-center gap-3">
-                  <Phone className="h-5 w-5 text-emerald-700" aria-hidden />
-                  <a href={PHONE_HREF} className="font-medium hover:underline">
-                    {PHONE}
-                  </a>
-                </li>
-                <li className="flex items-center gap-3">
-                  <Mail className="h-5 w-5 text-emerald-700" aria-hidden />
-                  <a
-                    href={`mailto:${EMAIL}`}
-                    className="font-medium hover:underline"
-                  >
-                    {EMAIL}
-                  </a>
-                </li>
-                <li className="flex items-start gap-3">
-                  <MapPin
-                    className="mt-0.5 h-5 w-5 shrink-0 text-emerald-700"
-                    aria-hidden
-                  />
-                  <span className="font-medium">{t.contact.location}</span>
-                </li>
-              </ul>
-            </Reveal>
-            <Reveal delay={0.1}>
-              <div className="rounded-2xl border bg-card p-6 shadow-sm sm:p-8">
-                <ContactForm labels={t.form} />
+          {/* Know before you go — field notes on the brand ground. */}
+          <section
+            id="know"
+            className={`${ANCHOR} topo relative overflow-hidden bg-canopy-deep`}
+          >
+            {/* The same ridge that closes the hero, reused as this section's edge. */}
+            <RidgeEdge
+              className="absolute inset-x-0 top-0 block h-[60px] w-full sm:h-[90px]"
+              fill="var(--secondary)"
+            />
+            <div className="relative z-10 mx-auto max-w-7xl px-5 pt-28 pb-20 sm:px-8 sm:pt-36 sm:py-28">
+              <KnowNotes
+                eyebrow={t.know.eyebrow}
+                title={t.know.title}
+                sub={t.know.sub}
+                items={t.know.items}
+              />
+            </div>
+          </section>
+
+          {/* Google reviews. Renders nothing until the Worker has its Places
+            secrets — see components/reviews.tsx. */}
+          <Reviews
+            labels={t.reviews}
+            locale={locale}
+            fallbackUrl={GOOGLE_LISTING_URL}
+          />
+
+          {/* Booking — renders only once NEXT_PUBLIC_CAL_LINK is set at build. */}
+          {CAL_CONFIGURED ? (
+            <section id="book" className={`${ANCHOR} bg-background`}>
+              <div className="mx-auto max-w-7xl px-5 py-20 sm:px-8 sm:py-24">
+                <Reveal>
+                  <div className="max-w-3xl">
+                    <Eyebrow>{t.book.eyebrow}</Eyebrow>
+                    <h2 className="mt-6 font-display text-[2rem] leading-[1.1] font-normal text-canopy sm:text-[2.75rem]">
+                      {t.book.title}
+                    </h2>
+                    <p className="mt-6 text-lg leading-relaxed text-muted-foreground">
+                      {t.book.sub}
+                    </p>
+                  </div>
+                </Reveal>
+                <Reveal delay={0.1}>
+                  <div className="mt-10 rounded-[28px] border bg-card p-2 sm:p-4">
+                    <BookingCalendar />
+                  </div>
+                </Reveal>
               </div>
-            </Reveal>
-          </div>
-        </section>
+            </section>
+          ) : null}
+
+          {/* Contact */}
+          <section id="contact" className={`${ANCHOR} bg-background`}>
+            <div className="mx-auto grid max-w-7xl gap-12 px-5 py-20 sm:px-8 sm:py-24 lg:grid-cols-2">
+              <Reveal>
+                <Eyebrow>{t.contact.eyebrow}</Eyebrow>
+                <h2 className="mt-6 font-display text-[2rem] leading-[1.1] font-normal text-canopy sm:text-[2.75rem]">
+                  {t.contact.title}
+                </h2>
+                <p className="mt-6 text-lg leading-relaxed text-muted-foreground">
+                  {t.contact.sub}
+                </p>
+                <ul className="mt-9 grid gap-4">
+                  <li className="flex items-center gap-3">
+                    <Phone
+                      className="h-4.5 w-4.5 text-forest"
+                      strokeWidth={1.75}
+                      aria-hidden
+                    />
+                    <a
+                      href={PHONE_HREF}
+                      className="font-medium hover:underline"
+                    >
+                      {PHONE}
+                    </a>
+                  </li>
+                  <li className="flex items-center gap-3">
+                    <Mail
+                      className="h-4.5 w-4.5 text-forest"
+                      strokeWidth={1.75}
+                      aria-hidden
+                    />
+                    <a
+                      href={`mailto:${EMAIL}`}
+                      className="font-medium hover:underline"
+                    >
+                      {EMAIL}
+                    </a>
+                  </li>
+                  <li className="flex items-start gap-3">
+                    <MapPin
+                      className="mt-0.5 h-4.5 w-4.5 shrink-0 text-forest"
+                      strokeWidth={1.75}
+                      aria-hidden
+                    />
+                    <span className="font-medium">{t.contact.location}</span>
+                  </li>
+                </ul>
+              </Reveal>
+              <Reveal delay={0.1}>
+                <div className="rounded-[28px] border bg-card p-6 shadow-[0_24px_60px_-40px_rgba(11,46,34,0.5)] sm:p-8">
+                  <ContactForm labels={t.form} />
+                </div>
+              </Reveal>
+            </div>
+          </section>
+        </div>
       </main>
 
-      {/* Footer: brand band with link columns and a legal row. */}
-      <footer className="bg-emerald-950 pt-14 text-emerald-100">
-        <div className="mx-auto grid max-w-7xl gap-10 px-4 sm:grid-cols-3">
+      <footer className="topo relative bg-canopy-deep pt-16 text-cream/70">
+        <div className="relative z-10 mx-auto grid max-w-7xl gap-10 px-5 sm:px-8 md:grid-cols-3">
           <div>
-            <p className="text-2xl font-bold tracking-tight text-white">
-              Fischer <span className="text-amber-400">Tropitel</span>
-            </p>
-            <p className="mt-3">{t.footer.tagline}</p>
+            <Logo className="text-cream" id="ft-footer" />
+            <p className="mt-5 max-w-xs leading-relaxed">{t.footer.tagline}</p>
           </div>
           <nav aria-label="Footer">
-            <ul className="grid gap-2">
-              {[
-                { href: "#casas", label: t.nav.casas },
-                { href: "#area", label: t.nav.area },
-                { href: "#know", label: t.nav.know },
-                { href: "#contact", label: t.nav.contact },
-              ].map((link) => (
+            <ul className="grid gap-2.5">
+              {navLinks.map((link) => (
                 <li key={link.href}>
-                  <a href={link.href} className="hover:text-white hover:underline">
+                  <a
+                    href={link.href}
+                    className="transition-colors hover:text-cream"
+                  >
                     {link.label}
                   </a>
                 </li>
@@ -451,31 +411,29 @@ export default async function Home({
               <li>
                 <a
                   href={t.nav.switchHref}
-                  className="font-semibold text-amber-300 hover:underline"
+                  className="font-semibold text-sun transition-opacity hover:opacity-80"
                 >
                   {t.nav.switchLabel}
                 </a>
               </li>
             </ul>
           </nav>
-          <div className="sm:text-right">
+          <div className="md:text-right">
             <p>
-              <a href={PHONE_HREF} className="hover:underline">
+              <a href={PHONE_HREF} className="hover:text-cream">
                 {PHONE}
               </a>
             </p>
             <p className="mt-1">
-              <a href={`mailto:${EMAIL}`} className="hover:underline">
+              <a href={`mailto:${EMAIL}`} className="hover:text-cream">
                 {EMAIL}
               </a>
             </p>
-            <p className="mt-3 text-sm text-emerald-300/80">
-              {t.contact.location}
-            </p>
+            <p className="mt-4 text-sm text-cream/45">{t.contact.location}</p>
           </div>
         </div>
-        <div className="mx-auto mt-10 max-w-7xl px-4">
-          <div className="border-t border-white/15 py-6 text-sm text-emerald-300/70">
+        <div className="relative z-10 mx-auto mt-12 max-w-7xl px-5 sm:px-8">
+          <div className="border-t border-cream/12 py-7 text-sm text-cream/45">
             © {new Date().getFullYear()} Fischer Tropitel. {t.footer.rights}
           </div>
         </div>

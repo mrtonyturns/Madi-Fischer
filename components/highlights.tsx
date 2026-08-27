@@ -1,8 +1,10 @@
 "use client";
 
 import Image from "next/image";
-import { ArrowLeft, ArrowRight } from "lucide-react";
+import { ArrowLeft } from "lucide-react";
 import { AnimatePresence, motion } from "motion/react";
+
+import { Btn } from "@/components/ui/btn";
 import * as React from "react";
 
 export interface Slide {
@@ -46,7 +48,7 @@ export function Highlights({ slides }: { slides: Slide[] }) {
           />
         </motion.div>
       </AnimatePresence>
-      <div className="absolute inset-0 bg-gradient-to-t from-emerald-950/50 via-transparent to-transparent" />
+      <div className="absolute inset-0 bg-gradient-to-t from-canopy-deep/70 via-canopy-deep/10 to-canopy-deep/25" />
 
       <div className="absolute inset-x-0 bottom-0">
         <div className="mx-auto max-w-7xl px-4 pb-10">
@@ -55,42 +57,38 @@ export function Highlights({ slides }: { slides: Slide[] }) {
             initial={{ opacity: 0, y: 16 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.4, delay: 0.15, ease: "easeOut" }}
-            className="max-w-xl rounded-tr-[40px] bg-white p-7 shadow-xl sm:p-9"
+            className="max-w-xl rounded-[28px] bg-cream p-7 shadow-[0_30px_70px_-30px_rgba(11,46,34,0.7)] sm:p-9"
           >
-            <h3 className="text-2xl font-bold tracking-tight text-emerald-950 sm:text-3xl">
+            <h2 className="font-display text-2xl leading-tight font-normal text-canopy sm:text-3xl">
               {s.title}
-            </h3>
-            <p className="mt-3 text-muted-foreground">{s.text}</p>
-            <a
-              href={s.href}
-              className="mt-5 inline-flex items-center gap-2 text-sm font-extrabold uppercase tracking-wider text-emerald-700 hover:text-emerald-900"
-            >
+            </h2>
+            <p className="mt-4 leading-relaxed text-muted-foreground">{s.text}</p>
+            <Btn href={s.href} variant="trail" className="mt-6">
               {s.cta}
-              <ArrowRight className="h-4 w-4" aria-hidden />
-            </a>
+            </Btn>
           </motion.div>
 
-          <div className="mt-6 flex items-center gap-4 text-white">
+          <div className="mt-7 flex items-center gap-4 text-cream">
             <button
               type="button"
               onClick={() => go(-1)}
               aria-label="Previous slide"
-              className="flex h-11 w-11 items-center justify-center rounded-full border border-white/50 transition-colors hover:bg-white/15"
+              className="flex h-11 w-11 items-center justify-center rounded-full border border-cream/45 transition-all duration-300 hover:border-cream hover:bg-cream hover:text-canopy"
             >
               <ArrowLeft className="h-5 w-5" aria-hidden />
             </button>
-            <p className="text-sm font-bold tracking-widest">
+            <p className="font-mono text-sm tracking-widest tabular-nums">
               {String(index + 1).padStart(2, "0")}
-              <span className="mx-2 text-white/60">/</span>
+              <span className="mx-2 text-cream/50">/</span>
               {String(slides.length).padStart(2, "0")}
             </p>
             <button
               type="button"
               onClick={() => go(1)}
               aria-label="Next slide"
-              className="flex h-11 w-11 items-center justify-center rounded-full border border-white/50 transition-colors hover:bg-white/15"
+              className="flex h-11 w-11 items-center justify-center rounded-full border border-cream/45 transition-all duration-300 hover:border-cream hover:bg-cream hover:text-canopy"
             >
-              <ArrowRight className="h-5 w-5" aria-hidden />
+              <ArrowLeft className="h-5 w-5 rotate-180" aria-hidden />
             </button>
           </div>
         </div>

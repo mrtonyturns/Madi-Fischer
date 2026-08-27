@@ -2,9 +2,27 @@
   "version": "0.0.1",
   "configurations": [
     {
-      "name": "static-preview",
+      "name": "dev",
+      "runtimeExecutable": "npm",
+      "runtimeArgs": [
+        "run",
+        "dev",
+        "--",
+        "--port",
+        "3000"
+      ],
+      "port": 3000
+    },
+    {
+      "name": "static",
       "runtimeExecutable": "npx",
-      "runtimeArgs": ["serve", "out", "-l", "4173"],
+      "runtimeArgs": [
+        "--yes",
+        "serve",
+        "out",
+        "-l",
+        "4173"
+      ],
       "port": 4173
     }
   ]

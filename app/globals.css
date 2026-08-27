@@ -12,59 +12,80 @@
 */
 
 :root {
-  /* IFF-style large radii: big rounded cards, pill buttons. */
-  --radius: 1rem;
+  /* Soft, organic radii. The art direction avoids hard chamfered corners. */
+  --radius: 1.25rem;
 
-  /* --font-sans comes from next/font (Fustat) via app/layout.tsx. */
+  /* --font-sans / --font-display come from next/font via app/layout.tsx. */
   --font-mono: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
 
-  /* ---- BRAND TOKENS: edit these ---- */
-  /* Fischer Tropitel — jungle green primary, warm sand accent. Bold & colorful
-     per the client brief; no brand hex supplied, so these are derived. */
-  --primary: oklch(0.45 0.12 152);
-  --primary-foreground: oklch(0.985 0 0);
-  --accent: oklch(0.95 0.05 85);
-  --accent-foreground: oklch(0.35 0.09 152);
+  /* ---- BRAND PALETTE: edit these ----
+     Named for the place rather than for Tailwind hues, so the art direction
+     survives a palette change. "Canopy" is the darkest green and carries most
+     dark sections; "sun" is the single warm accent. */
+  --canopy: oklch(0.24 0.045 165);
+  --canopy-deep: oklch(0.18 0.038 168);
+  --forest: oklch(0.38 0.082 160);
+  --moss: oklch(0.56 0.098 156);
+  --fern: oklch(0.72 0.11 150);
+  --sun: oklch(0.81 0.13 82);
+  --sun-deep: oklch(0.7 0.14 66);
+  --clay: oklch(0.63 0.13 42);
+  --cream: oklch(0.97 0.014 92);
+  --sand: oklch(0.93 0.022 90);
+
+  /* The primary CTA's colour, kept separate from the rest of the palette so
+     it can be re-hued without touching a single component. The gold accent
+     (--sun) still carries eyebrows, numerals and the logo leaf; the button
+     deliberately no longer shares it. */
+  --stone-lit: oklch(0.99 0.006 92);
+  --stone: oklch(0.955 0.016 92);
+  --stone-deep: oklch(0.88 0.028 90);
+  --stone-ink: var(--canopy-deep);
+
+  --primary: var(--forest);
+  --primary-foreground: var(--cream);
+  --accent: var(--sand);
+  --accent-foreground: var(--canopy);
   /* ---------------------------------- */
 
-  --background: oklch(1 0 0);
-  --foreground: oklch(0.2 0.02 152);
+  --background: oklch(0.99 0.006 92);
+  --foreground: oklch(0.22 0.03 165);
   --card: oklch(1 0 0);
-  --card-foreground: oklch(0.2 0.02 152);
+  --card-foreground: oklch(0.22 0.03 165);
   --popover: oklch(1 0 0);
-  --popover-foreground: oklch(0.2 0.02 152);
-  --secondary: oklch(0.96 0.02 152);
-  --secondary-foreground: oklch(0.35 0.09 152);
-  --muted: oklch(0.96 0.015 152);
-  --muted-foreground: oklch(0.5 0.03 152);
+  --popover-foreground: oklch(0.22 0.03 165);
+  --secondary: oklch(0.95 0.018 120);
+  --secondary-foreground: var(--forest);
+  --muted: oklch(0.95 0.014 110);
+  --muted-foreground: oklch(0.48 0.028 160);
   --destructive: oklch(0.577 0.245 27.325);
   --destructive-foreground: oklch(0.985 0 0);
-  --border: oklch(0.91 0.02 152);
-  --input: oklch(0.91 0.02 152);
-  --ring: oklch(0.45 0.12 152);
+  --border: oklch(0.9 0.016 130);
+  --input: oklch(0.9 0.016 130);
+  --ring: var(--moss);
 }
 
 .dark {
-  --primary: oklch(0.78 0.14 152);
-  --primary-foreground: oklch(0.2 0.05 152);
-  --accent: oklch(0.3 0.05 152);
-  --accent-foreground: oklch(0.95 0.05 85);
+  --primary: var(--fern);
+  --primary-foreground: var(--canopy-deep);
+  --accent: oklch(0.3 0.05 160);
+  --accent-foreground: var(--sun);
 
-  --background: oklch(0.18 0.03 152);
-  --foreground: oklch(0.97 0.01 152);
-  --card: oklch(0.23 0.04 152);
-  --card-foreground: oklch(0.97 0.01 152);
-  --popover: oklch(0.23 0.04 152);
-  --popover-foreground: oklch(0.97 0.01 152);
-  --secondary: oklch(0.28 0.04 152);
-  --secondary-foreground: oklch(0.97 0.01 152);
-  --muted: oklch(0.28 0.04 152);
-  --muted-foreground: oklch(0.75 0.03 152);
+  --background: oklch(0.18 0.03 165);
+  --foreground: oklch(0.97 0.01 110);
+  --card: oklch(0.23 0.04 165);
+  --card-foreground: oklch(0.97 0.01 110);
+  --popover: oklch(0.23 0.04 165);
+  --popover-foreground: oklch(0.97 0.01 110);
+  --secondary: oklch(0.28 0.04 165);
+  --secondary-foreground: oklch(0.97 0.01 110);
+  --muted: oklch(0.28 0.04 165);
+  --muted-foreground: oklch(0.75 0.03 150);
   --destructive: oklch(0.704 0.191 22.216);
   --destructive-foreground: oklch(0.985 0 0);
   --border: oklch(1 0 0 / 12%);
   --input: oklch(1 0 0 / 18%);
-  --ring: oklch(0.78 0.14 152);
+  --ring: var(--fern);
 }
 
 @theme inline {
@@ -88,13 +109,27 @@
   --color-input: var(--input);
   --color-ring: var(--ring);
 
+  /* Brand names usable as Tailwind utilities: bg-canopy, text-sun, … */
+  --color-canopy: var(--canopy);
+  --color-canopy-deep: var(--canopy-deep);
+  --color-forest: var(--forest);
+  --color-moss: var(--moss);
+  --color-fern: var(--fern);
+  --color-sun: var(--sun);
+  --color-sun-deep: var(--sun-deep);
+  --color-clay: var(--clay);
+  --color-cream: var(--cream);
+  --color-sand: var(--sand);
+  --color-stone: var(--stone);
+
   --font-sans: var(--font-sans);
+  --font-display: var(--font-display);
   --font-mono: var(--font-mono);
 
-  --radius-sm: calc(var(--radius) - 4px);
-  --radius-md: calc(var(--radius) - 2px);
+  --radius-sm: calc(var(--radius) - 8px);
+  --radius-md: calc(var(--radius) - 4px);
   --radius-lg: var(--radius);
-  --radius-xl: calc(var(--radius) + 4px);
+  --radius-xl: calc(var(--radius) + 8px);
 }
 
 @layer base {
@@ -106,5 +141,371 @@
     background-color: var(--background);
     color: var(--foreground);
     -webkit-font-smoothing: antialiased;
+  }
+}
+
+/* ==========================================================================
+   BUTTONS — "riverstone"
+
+   The brief: comfort, exotic, tropical, never corny. That rules out both the
+   hard chamfered corporate pill this site used to have and the obvious
+   tropical clichés. What's left is tactility: fully rounded stones with real
+   weight, a warm light source from above, and a press that gives, the way a
+   leaf gives when you touch it.
+
+   Three ingredients do the work, and every variant reuses them:
+     1. A two-stop gradient fill — lighter at the top, as if lit from the sky.
+     2. Layered shadow — one tight contact shadow, one wide ambient one — plus
+        an inset top highlight for the wet-stone edge.
+     3. A press state that drops the button 1px and pulls the shadows in, so
+        the light source stays believable.
+
+   The arrow sits in its own disc and widens on hover; that disc is the only
+   moving part, which keeps the motion calm.
+   ========================================================================== */
+
+@layer components {
+  .btn {
+    --btn-lift: 0px;
+    position: relative;
+    display: inline-flex;
+    align-items: center;
+    gap: 0.625rem;
+    padding: 0.9375rem 1.5rem;
+    border-radius: 999px;
+    font-size: 0.9375rem;
+    font-weight: 600;
+    letter-spacing: -0.005em;
+    line-height: 1;
+    white-space: nowrap;
+    cursor: pointer;
+    isolation: isolate;
+    transform: translateY(var(--btn-lift));
+    transition:
+      transform 260ms cubic-bezier(0.22, 1, 0.36, 1),
+      box-shadow 260ms cubic-bezier(0.22, 1, 0.36, 1),
+      background-color 260ms ease,
+      color 260ms ease,
+      border-color 260ms ease;
+  }
+
+  .btn:focus-visible {
+    outline: 2px solid var(--sun);
+    outline-offset: 3px;
+  }
+
+  /* The arrow disc. Sized off the font so it scales with .btn-lg. */
+  .btn__disc {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 1.625rem;
+    height: 1.625rem;
+    margin-right: -0.5rem;
+    border-radius: 999px;
+    flex: none;
+    transition:
+      transform 320ms cubic-bezier(0.22, 1, 0.36, 1),
+      background-color 260ms ease;
+  }
+  .btn__disc svg {
+    width: 0.875rem;
+    height: 0.875rem;
+    transition: transform 320ms cubic-bezier(0.22, 1, 0.36, 1);
+  }
+  .btn:hover .btn__disc {
+    transform: translateX(3px);
+  }
+  .btn:hover .btn__disc svg {
+    transform: translateX(1px);
+  }
+
+  /* --- Stone: the primary CTA, used on dark grounds ---
+         Every colour comes from the --stone-* tokens, so re-hueing the
+         primary button is a three-line change at the top of this file. --- */
+  .btn-stone {
+    color: var(--stone-ink);
+    background-image: linear-gradient(
+      168deg,
+      var(--stone-lit) 0%,
+      var(--stone) 46%,
+      var(--stone-deep) 100%
+    );
+    box-shadow:
+      inset 0 1px 0 color-mix(in oklch, white 70%, transparent),
+      0 1px 2px oklch(0.18 0.038 168 / 0.3),
+      0 10px 24px -8px oklch(0.18 0.038 168 / 0.5);
+  }
+  .btn-stone:hover {
+    --btn-lift: -2px;
+    box-shadow:
+      inset 0 1px 0 white,
+      0 2px 4px oklch(0.18 0.038 168 / 0.32),
+      0 18px 34px -10px oklch(0.18 0.038 168 / 0.55);
+  }
+  .btn-stone:active {
+    --btn-lift: 1px;
+    box-shadow:
+      inset 0 1px 3px oklch(0.4 0.02 90 / 0.35),
+      0 1px 1px oklch(0.18 0.038 168 / 0.25);
+  }
+  .btn-stone .btn__disc {
+    background-color: color-mix(in oklch, var(--stone-ink) 10%, transparent);
+  }
+
+  /* --- Canopy: the primary CTA on light grounds --- */
+  .btn-canopy {
+    color: var(--cream);
+    background-image: linear-gradient(168deg, var(--forest) 0%, var(--canopy) 100%);
+    box-shadow:
+      inset 0 1px 0 color-mix(in oklch, var(--fern) 40%, transparent),
+      0 1px 2px oklch(0.18 0.038 168 / 0.22),
+      0 10px 24px -8px oklch(0.18 0.038 168 / 0.38);
+  }
+  .btn-canopy:hover {
+    --btn-lift: -2px;
+    background-image: linear-gradient(168deg, var(--moss) 0%, var(--forest) 100%);
+    box-shadow:
+      inset 0 1px 0 color-mix(in oklch, var(--fern) 55%, transparent),
+      0 2px 4px oklch(0.18 0.038 168 / 0.24),
+      0 18px 34px -10px oklch(0.18 0.038 168 / 0.44);
+  }
+  .btn-canopy:active {
+    --btn-lift: 1px;
+    box-shadow:
+      inset 0 1px 3px oklch(0.12 0.03 168 / 0.5),
+      0 1px 1px oklch(0.18 0.038 168 / 0.2);
+  }
+  .btn-canopy .btn__disc {
+    background-color: color-mix(in oklch, var(--cream) 18%, transparent);
+  }
+
+  /* --- Mist: quiet secondary. Hover fills from the bottom like water rising.
+         The ::before sits behind the label via z-index, so no text repaint. --- */
+  .btn-mist {
+    color: var(--cream);
+    border: 1px solid color-mix(in oklch, var(--cream) 40%, transparent);
+    background-color: color-mix(in oklch, var(--cream) 6%, transparent);
+    backdrop-filter: blur(6px);
+    overflow: hidden;
+  }
+  .btn-mist::before {
+    content: "";
+    position: absolute;
+    inset: 0;
+    z-index: -1;
+    /* Deliberately a wash, not a solid: the primary beside this is now a
+       pale stone, and a solid cream fill here made the two read as twins. */
+    background-color: color-mix(in oklch, var(--cream) 22%, transparent);
+    transform: scaleY(0);
+    transform-origin: bottom;
+    transition: transform 380ms cubic-bezier(0.22, 1, 0.36, 1);
+  }
+  .btn-mist:hover {
+    color: var(--cream);
+    border-color: var(--cream);
+  }
+  .btn-mist:hover::before {
+    transform: scaleY(1);
+  }
+  .btn-mist:active {
+    --btn-lift: 1px;
+  }
+  .btn-mist .btn__disc {
+    background-color: color-mix(in oklch, currentColor 16%, transparent);
+  }
+
+  /* --- Mist on light grounds --- */
+  .btn-mist-dark {
+    color: var(--canopy);
+    border: 1px solid color-mix(in oklch, var(--canopy) 25%, transparent);
+    background-color: transparent;
+    overflow: hidden;
+  }
+  .btn-mist-dark::before {
+    content: "";
+    position: absolute;
+    inset: 0;
+    z-index: -1;
+    background-color: var(--canopy);
+    transform: scaleY(0);
+    transform-origin: bottom;
+    transition: transform 380ms cubic-bezier(0.22, 1, 0.36, 1);
+  }
+  .btn-mist-dark:hover {
+    color: var(--cream);
+    border-color: var(--canopy);
+  }
+  .btn-mist-dark:hover::before {
+    transform: scaleY(1);
+  }
+  .btn-mist-dark:active {
+    --btn-lift: 1px;
+  }
+  .btn-mist-dark .btn__disc {
+    background-color: color-mix(in oklch, currentColor 14%, transparent);
+  }
+
+  .btn-lg {
+    padding: 1.125rem 1.875rem;
+    font-size: 1.0625rem;
+    gap: 0.75rem;
+  }
+  .btn-lg .btn__disc {
+    width: 1.875rem;
+    height: 1.875rem;
+  }
+  .btn-lg .btn__disc svg {
+    width: 1rem;
+    height: 1rem;
+  }
+
+  .btn-sm {
+    padding: 0.6875rem 1.125rem;
+    font-size: 0.8125rem;
+    gap: 0.5rem;
+  }
+  .btn-sm .btn__disc {
+    width: 1.375rem;
+    height: 1.375rem;
+    margin-right: -0.375rem;
+  }
+  .btn-sm .btn__disc svg {
+    width: 0.75rem;
+    height: 0.75rem;
+  }
+
+  /* --- Trail: a text link whose rule draws itself left to right --- */
+  .btn-trail {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.5rem;
+    font-size: 0.9375rem;
+    font-weight: 600;
+    color: var(--forest);
+    padding-bottom: 2px;
+    background-image: linear-gradient(currentColor, currentColor);
+    background-size: 0% 1.5px;
+    background-repeat: no-repeat;
+    background-position: 0 100%;
+    transition:
+      background-size 380ms cubic-bezier(0.22, 1, 0.36, 1),
+      color 240ms ease;
+  }
+  .btn-trail:hover {
+    color: var(--canopy);
+    background-size: 100% 1.5px;
+  }
+  .btn-trail svg {
+    width: 1rem;
+    height: 1rem;
+    transition: transform 320ms cubic-bezier(0.22, 1, 0.36, 1);
+  }
+  .btn-trail:hover svg {
+    transform: translateX(4px);
+  }
+  .btn-trail-light {
+    color: var(--sun);
+  }
+  .btn-trail-light:hover {
+    color: var(--cream);
+  }
+}
+
+/* Respect the OS setting: keep every state change, drop the travel. */
+@media (prefers-reduced-motion: reduce) {
+  .btn,
+  .btn__disc,
+  .btn__disc svg,
+  .btn-trail,
+  .btn-trail svg,
+  .btn-mist::before,
+  .btn-mist-dark::before {
+    transition-duration: 1ms !important;
+  }
+  .btn:hover {
+    --btn-lift: 0px;
+  }
+  .btn:hover .btn__disc,
+  .btn:hover .btn__disc svg,
+  .btn-trail:hover svg {
+    transform: none;
+  }
+}
+
+/* ==========================================================================
+   TEXTURE — a faint topographic wash for dark bands, so large areas of green
+   read as land rather than as flat paint. Pure CSS: no image request.
+   ========================================================================== */
+
+.topo {
+  position: relative;
+}
+.topo::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  opacity: 0.5;
+  background-image:
+    repeating-radial-gradient(
+      circle at 18% 28%,
+      transparent 0 38px,
+      color-mix(in oklch, var(--fern) 12%, transparent) 38px 39px
+    ),
+    repeating-radial-gradient(
+      circle at 82% 76%,
+      transparent 0 52px,
+      color-mix(in oklch, var(--fern) 9%, transparent) 52px 53px
+    );
+  mask-image: radial-gradient(ellipse at center, black 20%, transparent 78%);
+}
+
+/* ==========================================================================
+   AMBIENT MOTION
+
+   Two loops that run independently of scroll. They exist so the hero is alive
+   when the page is sitting still — everything else on this site only moves in
+   response to the reader.
+   ========================================================================== */
+
+@keyframes sway {
+  0%,
+  100% {
+    transform: rotate(0deg);
+  }
+  50% {
+    transform: rotate(var(--sway, 2deg));
+  }
+}
+
+/* Applied to a child of the scroll-driven wrapper, never the same element:
+   Motion owns `transform` on the parent, this owns it on the child. */
+.sway {
+  transform-origin: var(--sway-origin, 20% 0%);
+  animation: sway 11s ease-in-out infinite;
+  will-change: transform;
+}
+
+/* The scroll cue's arrow: a small drift down and back, so the control reads as
+   alive without the page acquiring a second attention-grabber. */
+@keyframes nudge {
+  0%,
+  100% {
+    transform: translateY(0);
+  }
+  50% {
+    transform: translateY(3px);
+  }
+}
+
+.nudge {
+  animation: nudge 2.4s ease-in-out infinite;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .sway,
+  .nudge {
+    animation: none;
   }
 }
