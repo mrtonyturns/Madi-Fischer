@@ -3,16 +3,20 @@ import * as React from "react";
 import { cn } from "@/lib/utils";
 
 /**
- * The site's button system. Shape, depth, and motion all live in the
- * `.btn-*` classes in app/globals.css — this file only picks a variant and
- * decides whether the arrow disc is drawn.
+ * The site's button system — "leaf". Shape, colour and motion all live in the
+ * `.btn-*` classes in app/globals.css; this file only picks a variant.
+ *
+ * The leaf shape carries the affordance on its own, so there is no arrow disc
+ * on the buttons any more — the riverstone version needed one, this does not.
+ * `trail` is the exception: it is a text link, not a leaf, and its arrow is
+ * what marks it as going somewhere.
  *
  * Variants:
- *   stone  — primary CTA on dark grounds (pale river stone)
- *   canopy — primary CTA on light grounds (deep green stone)
- *   mist   — secondary on dark grounds (hairline, fills upward on hover)
+ *   stone    — primary on dark grounds (flat bone)
+ *   canopy   — primary on light grounds (flat forest green)
+ *   mist     — secondary on dark grounds (ring, fills on hover)
  *   mistDark — secondary on light grounds
- *   trail  — a text link with a rule that draws itself
+ *   trail    — a text link with a rule that draws itself
  */
 export type BtnVariant = "stone" | "canopy" | "mist" | "mistDark" | "trail";
 export type BtnSize = "sm" | "md" | "lg";
@@ -49,7 +53,10 @@ function Arrow() {
 interface BtnOwnProps {
   variant?: BtnVariant;
   size?: BtnSize;
-  /** Draw the trailing arrow. On `trail` it is bare; elsewhere it sits in a disc. */
+  /**
+   * Draw the trailing arrow. Only `trail` renders one — the leaf buttons
+   * ignore it, so callers that still pass it are harmless.
+   */
   arrow?: boolean;
   className?: string;
   children: React.ReactNode;
@@ -81,15 +88,7 @@ export function Btn({
   const body = (
     <>
       {children}
-      {arrow ? (
-        variant === "trail" ? (
-          <Arrow />
-        ) : (
-          <span className="btn__disc">
-            <Arrow />
-          </span>
-        )
-      ) : null}
+      {variant === "trail" && arrow ? <Arrow /> : null}
     </>
   );
 
