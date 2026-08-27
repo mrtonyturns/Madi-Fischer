@@ -3,6 +3,13 @@
   "name": "fischer-tropitel",
   "main": "./worker/index.ts",
   "compatibility_date": "2026-08-07",
+
+  // Where contact-form enquiries are emailed. Not a secret — the sending
+  // credential is RESEND_API_KEY, set with `wrangler secret put`.
+  "vars": {
+    "CONTACT_TO_EMAIL": "tony@kicklick.com",
+    "CONTACT_FROM_EMAIL": "Fischer Tropitel <onboarding@resend.dev>"
+  },
   "assets": {
     "directory": "./out",
     "binding": "ASSETS",
