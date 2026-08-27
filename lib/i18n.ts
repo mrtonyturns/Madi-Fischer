@@ -60,8 +60,6 @@ interface Dictionary {
     ctaSecondary: string;
     scrollCue: string;
     imageAlt: string;
-    /** Three short proof points under the buttons. */
-    facts: string[];
   };
   highlights: {
     eyebrow: string;
@@ -170,11 +168,6 @@ export const dict: Record<Locale, Dictionary> = {
       scrollCue: "Scroll",
       imageAlt:
         "The Fischer Tropitel casas on their private mountain property above Quepos, Costa Rica",
-      facts: [
-        "Private pool",
-        "20-minute walk to hot springs",
-        "Sleeps 6 per casa — 12 across all three",
-      ],
     },
     highlights: {
       eyebrow: "Life on the mountain",
@@ -468,11 +461,6 @@ export const dict: Record<Locale, Dictionary> = {
       scrollCue: "Baje",
       imageAlt:
         "Las casas de Fischer Tropitel en su propiedad privada en la montaña sobre Quepos, Costa Rica",
-      facts: [
-        "Piscina privada",
-        "20 minutos a pie a las aguas termales",
-        "6 personas por casa — 12 en las tres",
-      ],
     },
     highlights: {
       eyebrow: "La vida en la montaña",

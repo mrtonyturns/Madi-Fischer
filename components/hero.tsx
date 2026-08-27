@@ -46,7 +46,6 @@ export function Hero({
   ctaPrimaryHref,
   ctaSecondary,
   ctaSecondaryHref,
-  facts,
   scrollCue,
   imageAlt,
 }: {
@@ -57,7 +56,6 @@ export function Hero({
   ctaPrimaryHref: string;
   ctaSecondary: string;
   ctaSecondaryHref: string;
-  facts: string[];
   scrollCue: string;
   imageAlt: string;
 }) {
@@ -89,7 +87,6 @@ export function Hero({
           ctaPrimaryHref={ctaPrimaryHref}
           ctaSecondary={ctaSecondary}
           ctaSecondaryHref={ctaSecondaryHref}
-          facts={facts}
           scrollCue={scrollCue}
         />
       </div>
@@ -309,7 +306,6 @@ function Copy({
   ctaPrimaryHref,
   ctaSecondary,
   ctaSecondaryHref,
-  facts,
   scrollCue,
 }: {
   p: MotionValue<number>;
@@ -321,7 +317,6 @@ function Copy({
   ctaPrimaryHref: string;
   ctaSecondary: string;
   ctaSecondaryHref: string;
-  facts: string[];
   scrollCue: string;
 }) {
   /*
@@ -384,20 +379,6 @@ function Copy({
             </Btn>
           </motion.div>
 
-          <motion.ul
-            {...rise(0.58)}
-            className="mt-9 flex flex-wrap gap-x-7 gap-y-3 sm:mt-11 text-[0.8125rem] text-cream/65"
-          >
-            {facts.map((fact) => (
-              <li key={fact} className="flex items-center gap-2.5">
-                <span
-                  className="h-1.5 w-1.5 rounded-full bg-sun/80"
-                  aria-hidden
-                />
-                {fact}
-              </li>
-            ))}
-          </motion.ul>
         </div>
       </div>
 

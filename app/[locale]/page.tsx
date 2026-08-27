@@ -116,7 +116,6 @@ export default async function Home({
           ctaPrimaryHref="#casas"
           ctaSecondary={t.hero.ctaSecondary}
           ctaSecondaryHref={ctaHref}
-          facts={t.hero.facts}
           scrollCue={t.hero.scrollCue}
           imageAlt={t.hero.imageAlt}
         />
