@@ -1,3 +1,4 @@
+import Image from "next/image";
 import * as React from "react";
 
 import { cn } from "@/lib/utils";
@@ -74,18 +75,25 @@ export function Logo({
   className,
   markClassName,
   compact = false,
-  id = "ft",
   place = "Quepos · Costa Rica",
 }: {
   className?: string;
   markClassName?: string;
   compact?: boolean;
-  id?: string;
   place?: string;
 }) {
   return (
     <span className={cn("flex items-center gap-3", className)}>
-      <LogoMark id={id} className={cn("h-9 w-9 shrink-0", markClassName)} />
+      {/* The client's sailfish emblem — the ring cropped from her badge, with
+          the badge's blue keyed out. White line art, so it needs a dark
+          ground; the drawn LogoMark below stays available for light ones. */}
+      <Image
+        src="/images/logo-mark.png"
+        alt=""
+        width={192}
+        height={192}
+        className={cn("h-10 w-10 shrink-0", markClassName)}
+      />
       <span className="flex flex-col leading-none">
         <span className="font-display text-[1.0625rem] font-semibold tracking-[0.2em] uppercase">
           Fischer
