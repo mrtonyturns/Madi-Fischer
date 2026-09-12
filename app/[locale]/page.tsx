@@ -5,6 +5,7 @@ import { Item, Lift, Reveal, Stagger } from "@/components/animate";
 import { AreaMap } from "@/components/area-map";
 import { BookButton, BookingCalendar } from "@/components/booking";
 import { Logo } from "@/components/brand";
+import { CasaSlides } from "@/components/casa-slides";
 import { ContactForm } from "@/components/contact-form";
 import { Hero } from "@/components/hero";
 import { Highlights } from "@/components/highlights";
@@ -15,9 +16,12 @@ import { Btn } from "@/components/ui/btn";
 import { Eyebrow } from "@/components/ui/eyebrow";
 import { dict, type Locale } from "@/lib/i18n";
 
-const PHONE = "+1 (715) 348-4887";
-const PHONE_HREF = "tel:+17153484887";
-const EMAIL = "madilyn.fischer1991@gmail.com";
+const PHONES = [
+  { label: "+1 (715) 348-4887", href: "tel:+17153484887" },
+  { label: "+1 (715) 573-5576", href: "tel:+17155735576" },
+  { label: "+1 (715) 581-7713", href: "tel:+17155817713" },
+];
+const EMAIL = "madi@fischertropitel.com";
 
 // Set NEXT_PUBLIC_CAL_LINK (build variable) to switch on Cal.com booking:
 // the inline calendar section appears and casa buttons open the booking popup.
@@ -41,27 +45,50 @@ const GOOGLE_LISTING_URL =
   "https://www.google.com/maps/search/?api=1&query=Fischer+Tropitel";
 
 /*
- * Two of these are tall portrait shots (900x1200) dropped into a wide card, so
- * `object-cover` throws most of the frame away. Centred, the surviving band
- * landed on the deck canopy and the roof — the houses themselves sit in the
- * lower half. `position` biases the crop down onto the front of each house.
+ * One photo array per casa, in t.casas.list order — each card is a slideshow
+ * and grows controls automatically once its array has more than one entry.
+ * Madi wants more photos of every house here; drop them in as they arrive.
+ *
+ * The portrait shots (900x1200) sit in a wide card, so `object-cover` throws
+ * most of the frame away; `position` biases the crop onto the house.
+ *
+ * porch.jpg came embedded in the revisions doc at 820x341 — Madi offered the
+ * original ("let me know if you need it"); swap in the full-res file when it
+ * arrives.
  */
-const CASA_IMAGES = [
-  {
-    src: "/images/casa-cascada.jpg",
-    alt: "The front of Casa Cascada from the shared deck",
-    position: "object-[center_62%]",
-  },
-  {
-    src: "/images/loads-of-toads.jpg",
-    alt: "The front door and windows of Loads of Toads",
-    position: "object-[center_64%]",
-  },
-  {
-    src: "/images/casa-verde.jpg",
-    alt: "Casa Verde against the jungle",
-    position: "object-center",
-  },
+const CASA_IMAGES: {
+  src: string;
+  alt: string;
+  position?: string;
+}[][] = [
+  [
+    {
+      src: "/images/porch.jpg",
+      alt: "The covered porch shared by Casa Cascada and Loads of Toads, with wooden chairs facing the jungle",
+    },
+    {
+      src: "/images/casa-cascada.jpg",
+      alt: "The front of Casa Cascada from the shared deck",
+      position: "object-[center_62%]",
+    },
+  ],
+  [
+    {
+      src: "/images/loads-of-toads.jpg",
+      alt: "The front door and windows of Loads of Toads",
+      position: "object-[center_64%]",
+    },
+  ],
+  [
+    {
+      src: "/images/casa-verde.jpg",
+      alt: "Casa Verde against the jungle",
+    },
+    {
+      src: "/images/property-3.jpg",
+      alt: "Casa Verde's back corner against the jungle",
+    },
+  ],
 ];
 
 const HIGHLIGHT_IMAGES = [
@@ -177,12 +204,10 @@ export default async function Home({
                   <Reveal key={casa.name}>
                     <Lift>
                       <article className="relative min-h-[480px] overflow-hidden rounded-[28px] bg-canopy-deep">
-                        <Image
-                          src={CASA_IMAGES[i].src}
-                          alt={CASA_IMAGES[i].alt}
-                          fill
-                          sizes="(min-width: 1280px) 1248px, 100vw"
-                          className={`object-cover ${CASA_IMAGES[i].position}`}
+                        <CasaSlides
+                          slides={CASA_IMAGES[i]}
+                          prevLabel={t.casas.prevPhoto}
+                          nextLabel={t.casas.nextPhoto}
                         />
                         <div className="absolute inset-0 bg-gradient-to-t from-canopy-deep via-canopy-deep/45 to-transparent" />
                         <div className="absolute inset-x-0 bottom-0 flex flex-col items-start gap-3 p-7 text-cream sm:p-10">
@@ -347,19 +372,21 @@ export default async function Home({
                   {t.contact.sub}
                 </p>
                 <ul className="mt-9 grid gap-4">
-                  <li className="flex items-center gap-3">
-                    <Phone
-                      className="h-4.5 w-4.5 text-forest"
-                      strokeWidth={1.75}
-                      aria-hidden
-                    />
-                    <a
-                      href={PHONE_HREF}
-                      className="-my-2 inline-block py-2 font-medium hover:underline"
-                    >
-                      {PHONE}
-                    </a>
-                  </li>
+                  {PHONES.map((phone) => (
+                    <li key={phone.href} className="flex items-center gap-3">
+                      <Phone
+                        className="h-4.5 w-4.5 text-forest"
+                        strokeWidth={1.75}
+                        aria-hidden
+                      />
+                      <a
+                        href={phone.href}
+                        className="-my-2 inline-block py-2 font-medium hover:underline"
+                      >
+                        {phone.label}
+                      </a>
+                    </li>
+                  ))}
                   <li className="flex items-center gap-3">
                     <Mail
                       className="h-4.5 w-4.5 text-forest"
@@ -422,14 +449,16 @@ export default async function Home({
             </ul>
           </nav>
           <div className="md:text-right">
-            <p>
-              <a
-                href={PHONE_HREF}
-                className="-my-1.5 inline-block py-1.5 hover:text-cream"
-              >
-                {PHONE}
-              </a>
-            </p>
+            {PHONES.map((phone) => (
+              <p key={phone.href}>
+                <a
+                  href={phone.href}
+                  className="-my-1.5 inline-block py-1.5 hover:text-cream"
+                >
+                  {phone.label}
+                </a>
+              </p>
+            ))}
             <p className="mt-1">
               <a
                 href={`mailto:${EMAIL}`}
