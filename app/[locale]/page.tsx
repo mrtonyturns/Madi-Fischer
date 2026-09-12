@@ -4,7 +4,6 @@ import { Mail, MapPin, Phone } from "lucide-react";
 import { Item, Lift, Reveal, Stagger } from "@/components/animate";
 import { AreaMap } from "@/components/area-map";
 import { BookButton, BookingCalendar } from "@/components/booking";
-import { Logo } from "@/components/brand";
 import { CasaSlides } from "@/components/casa-slides";
 import { ContactForm } from "@/components/contact-form";
 import { Hero } from "@/components/hero";
@@ -444,8 +443,16 @@ export default async function Home({
       <footer className="topo relative bg-canopy-deep pt-16 text-cream/70">
         <div className="relative z-10 mx-auto grid max-w-7xl gap-10 px-5 sm:px-8 md:grid-cols-3">
           <div>
-            <Logo className="text-cream" id="ft-footer" />
-            <p className="mt-5 max-w-xs leading-relaxed">{t.footer.tagline}</p>
+            {/* The client's own badge (blue background keyed out); the compact
+                Logo lockup stays in the header, where this art would collapse. */}
+            <Image
+              src="/images/logo-badge.png"
+              alt="Fischer Tropitel Retreat — choose your adventure"
+              width={200}
+              height={200}
+              className="-mt-4 -ml-3"
+            />
+            <p className="mt-1 max-w-xs leading-relaxed">{t.footer.tagline}</p>
           </div>
           <nav aria-label="Footer">
             <ul className="grid gap-2.5">
