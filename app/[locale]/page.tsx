@@ -67,9 +67,20 @@ const CASA_IMAGES: {
       alt: "The covered porch shared by Casa Cascada and Loads of Toads, with wooden chairs facing the jungle",
     },
     {
+      src: "/images/casa-cascada-door.jpg",
+      alt: "Casa Cascada's entrance, its name painted over the door",
+      position: "object-[center_40%]",
+    },
+    {
       src: "/images/casa-cascada.jpg",
       alt: "The front of Casa Cascada from the shared deck",
       position: "object-[center_62%]",
+    },
+    // TODO: confirm with Madi which casa this bedroom belongs to — the two
+    // interior shots arrived unlabelled, so the alts stay property-generic.
+    {
+      src: "/images/bedroom-1.jpg",
+      alt: "A bedroom at the casas, its window filled with jungle",
     },
   ],
   [
@@ -77,6 +88,11 @@ const CASA_IMAGES: {
       src: "/images/loads-of-toads.jpg",
       alt: "The front door and windows of Loads of Toads",
       position: "object-[center_64%]",
+    },
+    // TODO: as above — confirm which casa this bedroom is in.
+    {
+      src: "/images/bedroom-2.jpg",
+      alt: "A bedroom at the casas, with the jungle outside the window",
     },
   ],
   [
@@ -94,7 +110,12 @@ const CASA_IMAGES: {
 const HIGHLIGHT_IMAGES = [
   { src: "/images/hero.jpg", alt: "Jungle around the Fischer Tropitel casas" },
   { src: "/images/property-2.jpg", alt: "The gated entrance to the property" },
-  { src: "/images/property-3.jpg", alt: "Casa Verde against the jungle" },
+  // property-3 moved into Casa Verde's slideshow; this wide driveway shot
+  // keeps the carousel from repeating it.
+  {
+    src: "/images/property-4.jpg",
+    alt: "The casas from the property's gravel driveway",
+  },
 ];
 
 /** The fixed header is 84px, so anchored sections need to clear it. */
