@@ -1,10 +1,10 @@
-import Image from "next/image";
 import { Mail, MapPin, Phone } from "lucide-react";
 
 import { Item, Lift, Reveal, Stagger } from "@/components/animate";
 import { AreaMap } from "@/components/area-map";
 import { BookButton, BookingCalendar } from "@/components/booking";
 import { Logo } from "@/components/brand";
+import { CasaGallery } from "@/components/casa-gallery";
 import { ContactForm } from "@/components/contact-form";
 import { Hero } from "@/components/hero";
 import { Highlights } from "@/components/highlights";
@@ -15,9 +15,12 @@ import { Btn } from "@/components/ui/btn";
 import { Eyebrow } from "@/components/ui/eyebrow";
 import { dict, type Locale } from "@/lib/i18n";
 
-const PHONE = "+1 (715) 348-4887";
-const PHONE_HREF = "tel:+17153484887";
-const EMAIL = "madilyn.fischer1991@gmail.com";
+const PHONES = [
+  { display: "+1 (715) 348-4887", href: "tel:+17153484887" },
+  { display: "+1 (715) 573-5576", href: "tel:+17155735576" },
+  { display: "+1 (715) 581-7713", href: "tel:+17155817713" },
+];
+const EMAIL = "madi@fischertropitel.com";
 
 // Set NEXT_PUBLIC_CAL_LINK (build variable) to switch on Cal.com booking:
 // the inline calendar section appears and casa buttons open the booking popup.
@@ -41,31 +44,67 @@ const GOOGLE_LISTING_URL =
   "https://www.google.com/maps/search/?api=1&query=Fischer+Tropitel";
 
 /*
- * Two of these are tall portrait shots (900x1200) dropped into a wide card, so
- * `object-cover` throws most of the frame away. Centred, the surviving band
- * landed on the deck canopy and the roof — the houses themselves sit in the
- * lower half. `position` biases the crop down onto the front of each house.
+ * Two of the front-of-house shots are tall portrait shots (900x1200) dropped
+ * into a wide card, so `object-cover` throws most of the frame away. Centred,
+ * the surviving band landed on the deck canopy and the roof — the houses
+ * themselves sit in the lower half. `position` biases the crop down onto the
+ * front of each house.
+ *
+ * Each casa gets a small photo gallery rather than one static image. Casa
+ * Cascada and Loads of Toads share one big deck (see `deck` in t.casas.list),
+ * so they share the two deck photos too; Casa Verde has its own private deck
+ * and, for now, its own single photo.
  */
-const CASA_IMAGES = [
+const SHARED_DECK_IMAGES = [
   {
-    src: "/images/casa-cascada.jpg",
-    alt: "The front of Casa Cascada from the shared deck",
-    position: "object-[center_62%]",
+    src: "/images/porch-deck-1.jpg",
+    alt: "The shared deck's outdoor bar, rocking chairs and hammock swing",
+    position: "object-center",
   },
   {
-    src: "/images/loads-of-toads.jpg",
-    alt: "The front door and windows of Loads of Toads",
-    position: "object-[center_64%]",
-  },
-  {
-    src: "/images/casa-verde.jpg",
-    alt: "Casa Verde against the jungle",
+    src: "/images/porch-deck-2.jpg",
+    alt: "Looking down the shared deck toward the dining table and jungle",
     position: "object-center",
   },
 ];
 
+const CASA_IMAGES = [
+  {
+    images: [
+      {
+        src: "/images/casa-cascada.jpg",
+        alt: "The front of Casa Cascada from the shared deck",
+        position: "object-[center_62%]",
+      },
+      ...SHARED_DECK_IMAGES,
+    ],
+  },
+  {
+    images: [
+      {
+        src: "/images/loads-of-toads.jpg",
+        alt: "The front door and windows of Loads of Toads",
+        position: "object-[center_64%]",
+      },
+      ...SHARED_DECK_IMAGES,
+    ],
+  },
+  {
+    images: [
+      {
+        src: "/images/casa-verde.jpg",
+        alt: "Casa Verde against the jungle",
+        position: "object-center",
+      },
+    ],
+  },
+];
+
 const HIGHLIGHT_IMAGES = [
-  { src: "/images/hero.jpg", alt: "Jungle around the Fischer Tropitel casas" },
+  {
+    src: "/images/porch-deck-1.jpg",
+    alt: "The shared deck's outdoor bar, rocking chairs and hammock swing",
+  },
   { src: "/images/property-2.jpg", alt: "The gated entrance to the property" },
   { src: "/images/property-3.jpg", alt: "Casa Verde against the jungle" },
 ];
@@ -177,12 +216,9 @@ export default async function Home({
                   <Reveal key={casa.name}>
                     <Lift>
                       <article className="relative min-h-[480px] overflow-hidden rounded-[28px] bg-canopy-deep">
-                        <Image
-                          src={CASA_IMAGES[i].src}
-                          alt={CASA_IMAGES[i].alt}
-                          fill
-                          sizes="(min-width: 1280px) 1248px, 100vw"
-                          className={`object-cover ${CASA_IMAGES[i].position}`}
+                        <CasaGallery
+                          images={CASA_IMAGES[i].images}
+                          priority={i === 0}
                         />
                         <div className="absolute inset-0 bg-gradient-to-t from-canopy-deep via-canopy-deep/45 to-transparent" />
                         <div className="absolute inset-x-0 bottom-0 flex flex-col items-start gap-3 p-7 text-cream sm:p-10">
@@ -349,16 +385,21 @@ export default async function Home({
                 <ul className="mt-9 grid gap-4">
                   <li className="flex items-center gap-3">
                     <Phone
-                      className="h-4.5 w-4.5 text-forest"
+                      className="h-4.5 w-4.5 shrink-0 text-forest"
                       strokeWidth={1.75}
                       aria-hidden
                     />
-                    <a
-                      href={PHONE_HREF}
-                      className="-my-2 inline-block py-2 font-medium hover:underline"
-                    >
-                      {PHONE}
-                    </a>
+                    <span className="flex flex-wrap gap-x-3 gap-y-1">
+                      {PHONES.map((phone) => (
+                        <a
+                          key={phone.href}
+                          href={phone.href}
+                          className="-my-2 inline-block py-2 font-medium hover:underline"
+                        >
+                          {phone.display}
+                        </a>
+                      ))}
+                    </span>
                   </li>
                   <li className="flex items-center gap-3">
                     <Mail
@@ -422,14 +463,16 @@ export default async function Home({
             </ul>
           </nav>
           <div className="md:text-right">
-            <p>
-              <a
-                href={PHONE_HREF}
-                className="-my-1.5 inline-block py-1.5 hover:text-cream"
-              >
-                {PHONE}
-              </a>
-            </p>
+            {PHONES.map((phone) => (
+              <p key={phone.href}>
+                <a
+                  href={phone.href}
+                  className="-my-1.5 inline-block py-1.5 hover:text-cream"
+                >
+                  {phone.display}
+                </a>
+              </p>
+            ))}
             <p className="mt-1">
               <a
                 href={`mailto:${EMAIL}`}

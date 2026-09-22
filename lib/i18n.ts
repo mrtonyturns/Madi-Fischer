@@ -162,19 +162,19 @@ export const dict: Record<Locale, Dictionary> = {
     },
     hero: {
       eyebrow: "Quepos, Costa Rica",
-      title: "Three casas on a mountain, above a waterfall.",
-      sub: "Wake up to the river. Walk to hot springs. Fish the waters that made Quepos famous — then come home to a house that's yours for the week.",
+      title: "Choose your adventure",
+      sub: "Enjoy a cup of coffee in front of the waterfall, walk to the hot springs, swim in the river and plan your adventure for the day.",
       ctaPrimary: "See the three casas",
       ctaSecondary: "Plan your stay",
       scrollCue: "Scroll",
       imageAlt:
-        "The Fischer Tropitel casas on their private mountain property above Quepos, Costa Rica",
+        "Aerial view of the waterfall and river below the Fischer Tropitel casas near Quepos, Costa Rica",
     },
     highlights: {
       eyebrow: "Life on the mountain",
       items: [
         {
-          title: "Coffee with a waterfall view",
+          title: "Drinks with a waterfall view",
           text: "The casas look out over the river and its waterfall — the soundtrack to your morning.",
           cta: "See the casas",
           href: "#casas",
@@ -201,9 +201,9 @@ export const dict: Record<Locale, Dictionary> = {
           caption: "fully furnished casas on one private jungle property",
         },
         {
-          value: "6 / 12",
+          value: "6 / 18",
           caption:
-            "guests per casa, or twelve if you take the whole property",
+            "guests per casa, or eighteen if you take the whole property",
         },
         {
           value: "20 min",
@@ -219,7 +219,7 @@ export const dict: Record<Locale, Dictionary> = {
       eyebrow: "The Casas",
       title: "Pick your casa",
       intro:
-        "Three fully furnished houses on one secluded mountain property. Each has two bedrooms, one bathroom, a fully equipped kitchen, and sleeps about six — twelve if you take all three. We bring our own three kids down every chance we get, so it is built for families as much as for fishermen.",
+        "Three individual units on one secluded mountain property. Each has two bedrooms, one bathroom, a fully equipped kitchen, and sleeps about six — eighteen people altogether if you take all three. We bring our own three kids down every chance we get, so it is built for families as much as for fishermen.",
       perNight: "/ night",
       beds: "2 bedrooms · sleeps ~6",
       bath: "1 bathroom",
@@ -455,19 +455,19 @@ export const dict: Record<Locale, Dictionary> = {
     },
     hero: {
       eyebrow: "Quepos, Costa Rica",
-      title: "Tres casas en la montaña, sobre una catarata.",
-      sub: "Despierte con el río. Camine a las aguas termales. Pesque en las aguas que hicieron famoso a Quepos — y vuelva a una casa que es suya toda la semana.",
+      title: "Elija su aventura",
+      sub: "Disfrute un café frente a la catarata, camine a las aguas termales, nade en el río y planee la aventura del día.",
       ctaPrimary: "Ver las tres casas",
       ctaSecondary: "Planee su estadía",
       scrollCue: "Baje",
       imageAlt:
-        "Las casas de Fischer Tropitel en su propiedad privada en la montaña sobre Quepos, Costa Rica",
+        "Vista aérea de la catarata y el río bajo las casas de Fischer Tropitel cerca de Quepos, Costa Rica",
     },
     highlights: {
       eyebrow: "La vida en la montaña",
       items: [
         {
-          title: "Café con vista a la catarata",
+          title: "Bebidas con vista a la catarata",
           text: "Las casas miran al río y su catarata — la banda sonora de su mañana.",
           cta: "Ver las casas",
           href: "#casas",
@@ -494,9 +494,9 @@ export const dict: Record<Locale, Dictionary> = {
           caption: "casas totalmente amuebladas en una propiedad privada en la selva",
         },
         {
-          value: "6 / 12",
+          value: "6 / 18",
           caption:
-            "huéspedes por casa, o doce si toma la propiedad entera",
+            "huéspedes por casa, o dieciocho si toma la propiedad entera",
         },
         {
           value: "20 min",
@@ -512,7 +512,7 @@ export const dict: Record<Locale, Dictionary> = {
       eyebrow: "Las Casas",
       title: "Elija su casa",
       intro:
-        "Tres casas totalmente amuebladas en una propiedad privada en la montaña. Cada una tiene dos habitaciones, un baño, cocina totalmente equipada y espacio para unas seis personas — doce si toma las tres. Bajamos con nuestros tres hijos cada vez que podemos, así que está pensada tanto para familias como para pescadores.",
+        "Tres unidades individuales en una propiedad privada en la montaña. Cada una tiene dos habitaciones, un baño, cocina totalmente equipada y espacio para unas seis personas — dieciocho en total si toma las tres. Bajamos con nuestros tres hijos cada vez que podemos, así que está pensada tanto para familias como para pescadores.",
       perNight: "/ noche",
       beds: "2 habitaciones · ~6 personas",
       bath: "1 baño",

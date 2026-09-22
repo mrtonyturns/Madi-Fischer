@@ -62,7 +62,7 @@ const jsonLd = {
   name: "Fischer Tropitel",
   url: SITE_URL,
   telephone: "+1-715-348-4887",
-  email: "madilyn.fischer1991@gmail.com",
+  email: "madi@fischertropitel.com",
   description:
     "Three private jungle casa rentals above a waterfall in the mountains near Quepos, Costa Rica, close to Manuel Antonio National Park and world-class sportfishing.",
   address: {
