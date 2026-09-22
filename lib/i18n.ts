@@ -81,6 +81,9 @@ interface Dictionary {
     askCta: string;
     /** Label used whenever the button hands off to Airbnb. */
     bookNowCta: string;
+    /** Aria labels for the photo slideshow arrows on each card. */
+    prevPhoto: string;
+    nextPhoto: string;
     note: string;
     list: CasaCopy[];
   };
@@ -162,7 +165,7 @@ export const dict: Record<Locale, Dictionary> = {
     },
     hero: {
       eyebrow: "Quepos, Costa Rica",
-      title: "Choose your adventure",
+      title: "Choose your adventure.",
       sub: "Enjoy a cup of coffee in front of the waterfall, walk to the hot springs, swim in the river and plan your adventure for the day.",
       ctaPrimary: "See the three casas",
       ctaSecondary: "Plan your stay",
@@ -227,6 +230,8 @@ export const dict: Record<Locale, Dictionary> = {
       bookCta: "Book",
       askCta: "Ask about dates",
       bookNowCta: "Book now",
+      prevPhoto: "Previous photo",
+      nextPhoto: "Next photo",
       note: "Good to know: the casas share one property, so if you book one, friendly neighbors may be staying in another. Rates are lower in the rainy season — ask us.",
       list: [
         {
@@ -455,7 +460,7 @@ export const dict: Record<Locale, Dictionary> = {
     },
     hero: {
       eyebrow: "Quepos, Costa Rica",
-      title: "Elija su aventura",
+      title: "Elija su aventura.",
       sub: "Disfrute un café frente a la catarata, camine a las aguas termales, nade en el río y planee la aventura del día.",
       ctaPrimary: "Ver las tres casas",
       ctaSecondary: "Planee su estadía",
@@ -520,6 +525,8 @@ export const dict: Record<Locale, Dictionary> = {
       bookNowCta: "Reservar ahora",
       bookCta: "Reservar",
       askCta: "Consultar fechas",
+      prevPhoto: "Foto anterior",
+      nextPhoto: "Foto siguiente",
       note: "Bueno saber: las casas comparten una misma propiedad, así que si reserva una, puede haber vecinos amistosos en otra. Las tarifas bajan en la temporada de lluvias — pregúntenos.",
       list: [
         {

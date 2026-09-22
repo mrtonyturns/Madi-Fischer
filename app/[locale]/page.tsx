@@ -1,10 +1,10 @@
+import Image from "next/image";
 import { Mail, MapPin, Phone } from "lucide-react";
 
 import { Item, Lift, Reveal, Stagger } from "@/components/animate";
 import { AreaMap } from "@/components/area-map";
 import { BookButton, BookingCalendar } from "@/components/booking";
-import { Logo } from "@/components/brand";
-import { CasaGallery } from "@/components/casa-gallery";
+import { CasaSlides } from "@/components/casa-slides";
 import { ContactForm } from "@/components/contact-form";
 import { Hero } from "@/components/hero";
 import { Highlights } from "@/components/highlights";
@@ -16,9 +16,9 @@ import { Eyebrow } from "@/components/ui/eyebrow";
 import { dict, type Locale } from "@/lib/i18n";
 
 const PHONES = [
-  { display: "+1 (715) 348-4887", href: "tel:+17153484887" },
-  { display: "+1 (715) 573-5576", href: "tel:+17155735576" },
-  { display: "+1 (715) 581-7713", href: "tel:+17155817713" },
+  { label: "+1 (715) 348-4887", href: "tel:+17153484887" },
+  { label: "+1 (715) 573-5576", href: "tel:+17155735576" },
+  { label: "+1 (715) 581-7713", href: "tel:+17155817713" },
 ];
 const EMAIL = "madi@fischertropitel.com";
 
@@ -44,69 +44,90 @@ const GOOGLE_LISTING_URL =
   "https://www.google.com/maps/search/?api=1&query=Fischer+Tropitel";
 
 /*
- * Two of the front-of-house shots are tall portrait shots (900x1200) dropped
- * into a wide card, so `object-cover` throws most of the frame away. Centred,
- * the surviving band landed on the deck canopy and the roof — the houses
- * themselves sit in the lower half. `position` biases the crop down onto the
- * front of each house.
+ * One photo array per casa, in t.casas.list order — each card is a slideshow
+ * and grows controls automatically once its array has more than one entry.
+ * Madi wants more photos of every house here; drop them in as they arrive.
  *
- * Each casa gets a small photo gallery rather than one static image. Casa
- * Cascada and Loads of Toads share one big deck (see `deck` in t.casas.list),
- * so they share the two deck photos too; Casa Verde has its own private deck
- * and, for now, its own single photo.
+ * The portrait shots (900x1200) sit in a wide card, so `object-cover` throws
+ * most of the frame away; `position` biases the crop onto the house.
+ *
+ * The two porch-deck shots are the full-resolution originals of the porch
+ * photo Madi embedded in her revisions doc. That deck is shared by Casa
+ * Cascada and Loads of Toads, so both slideshows include it.
  */
-const SHARED_DECK_IMAGES = [
-  {
-    src: "/images/porch-deck-1.jpg",
-    alt: "The shared deck's outdoor bar, rocking chairs and hammock swing",
-    position: "object-center",
-  },
-  {
-    src: "/images/porch-deck-2.jpg",
-    alt: "Looking down the shared deck toward the dining table and jungle",
-    position: "object-center",
-  },
-];
-
-const CASA_IMAGES = [
-  {
-    images: [
-      {
-        src: "/images/casa-cascada.jpg",
-        alt: "The front of Casa Cascada from the shared deck",
-        position: "object-[center_62%]",
-      },
-      ...SHARED_DECK_IMAGES,
-    ],
-  },
-  {
-    images: [
-      {
-        src: "/images/loads-of-toads.jpg",
-        alt: "The front door and windows of Loads of Toads",
-        position: "object-[center_64%]",
-      },
-      ...SHARED_DECK_IMAGES,
-    ],
-  },
-  {
-    images: [
-      {
-        src: "/images/casa-verde.jpg",
-        alt: "Casa Verde against the jungle",
-        position: "object-center",
-      },
-    ],
-  },
+const CASA_IMAGES: {
+  src: string;
+  alt: string;
+  position?: string;
+}[][] = [
+  [
+    {
+      src: "/images/porch-deck-1.jpg",
+      alt: "The covered porch shared by Casa Cascada and Loads of Toads, with wooden chairs facing the jungle",
+    },
+    {
+      src: "/images/porch-deck-2.jpg",
+      alt: "Looking down the shared porch toward the outdoor bar and the jungle",
+    },
+    {
+      src: "/images/casa-cascada-door.jpg",
+      alt: "Casa Cascada's entrance, its name painted over the door",
+      position: "object-[center_40%]",
+    },
+    {
+      src: "/images/casa-cascada.jpg",
+      alt: "The front of Casa Cascada from the shared deck",
+      position: "object-[center_62%]",
+    },
+    // TODO: confirm with Madi which casa this bedroom belongs to — the two
+    // interior shots arrived unlabelled, so the alts stay property-generic.
+    {
+      src: "/images/bedroom-1.jpg",
+      alt: "A bedroom at the casas, its window filled with jungle",
+    },
+  ],
+  [
+    {
+      src: "/images/loads-of-toads.jpg",
+      alt: "The front door and windows of Loads of Toads",
+      position: "object-[center_64%]",
+    },
+    // TODO: as above — confirm which casa this bedroom is in.
+    {
+      src: "/images/bedroom-2.jpg",
+      alt: "A bedroom at the casas, with the jungle outside the window",
+    },
+    {
+      src: "/images/porch-deck-2.jpg",
+      alt: "Looking down the shared porch toward the outdoor bar and the jungle",
+    },
+  ],
+  [
+    {
+      src: "/images/casa-verde.jpg",
+      alt: "Casa Verde against the jungle",
+    },
+    {
+      src: "/images/property-3.jpg",
+      alt: "Casa Verde's back corner against the jungle",
+    },
+  ],
 ];
 
 const HIGHLIGHT_IMAGES = [
+  // The porch photo from Madi's revisions doc, replacing the old front-of-house
+  // shot on the first carousel card.
   {
     src: "/images/porch-deck-1.jpg",
-    alt: "The shared deck's outdoor bar, rocking chairs and hammock swing",
+    alt: "The shared porch's outdoor bar, rocking chairs and hammock swing",
   },
   { src: "/images/property-2.jpg", alt: "The gated entrance to the property" },
-  { src: "/images/property-3.jpg", alt: "Casa Verde against the jungle" },
+  // property-3 moved into Casa Verde's slideshow; this wide driveway shot
+  // keeps the carousel from repeating it.
+  {
+    src: "/images/property-4.jpg",
+    alt: "The casas from the property's gravel driveway",
+  },
 ];
 
 /** The fixed header is 84px, so anchored sections need to clear it. */
@@ -216,9 +237,10 @@ export default async function Home({
                   <Reveal key={casa.name}>
                     <Lift>
                       <article className="relative min-h-[480px] overflow-hidden rounded-[28px] bg-canopy-deep">
-                        <CasaGallery
-                          images={CASA_IMAGES[i].images}
-                          priority={i === 0}
+                        <CasaSlides
+                          slides={CASA_IMAGES[i]}
+                          prevLabel={t.casas.prevPhoto}
+                          nextLabel={t.casas.nextPhoto}
                         />
                         <div className="absolute inset-0 bg-gradient-to-t from-canopy-deep via-canopy-deep/45 to-transparent" />
                         <div className="absolute inset-x-0 bottom-0 flex flex-col items-start gap-3 p-7 text-cream sm:p-10">
@@ -383,24 +405,21 @@ export default async function Home({
                   {t.contact.sub}
                 </p>
                 <ul className="mt-9 grid gap-4">
-                  <li className="flex items-center gap-3">
-                    <Phone
-                      className="h-4.5 w-4.5 shrink-0 text-forest"
-                      strokeWidth={1.75}
-                      aria-hidden
-                    />
-                    <span className="flex flex-wrap gap-x-3 gap-y-1">
-                      {PHONES.map((phone) => (
-                        <a
-                          key={phone.href}
-                          href={phone.href}
-                          className="-my-2 inline-block py-2 font-medium hover:underline"
-                        >
-                          {phone.display}
-                        </a>
-                      ))}
-                    </span>
-                  </li>
+                  {PHONES.map((phone) => (
+                    <li key={phone.href} className="flex items-center gap-3">
+                      <Phone
+                        className="h-4.5 w-4.5 text-forest"
+                        strokeWidth={1.75}
+                        aria-hidden
+                      />
+                      <a
+                        href={phone.href}
+                        className="-my-2 inline-block py-2 font-medium hover:underline"
+                      >
+                        {phone.label}
+                      </a>
+                    </li>
+                  ))}
                   <li className="flex items-center gap-3">
                     <Mail
                       className="h-4.5 w-4.5 text-forest"
@@ -437,8 +456,16 @@ export default async function Home({
       <footer className="topo relative bg-canopy-deep pt-16 text-cream/70">
         <div className="relative z-10 mx-auto grid max-w-7xl gap-10 px-5 sm:px-8 md:grid-cols-3">
           <div>
-            <Logo className="text-cream" id="ft-footer" />
-            <p className="mt-5 max-w-xs leading-relaxed">{t.footer.tagline}</p>
+            {/* The client's own badge (blue background keyed out); the compact
+                Logo lockup stays in the header, where this art would collapse. */}
+            <Image
+              src="/images/logo-badge.png"
+              alt="Fischer Tropitel Retreat — choose your adventure"
+              width={200}
+              height={200}
+              className="-mt-4 -ml-3"
+            />
+            <p className="mt-1 max-w-xs leading-relaxed">{t.footer.tagline}</p>
           </div>
           <nav aria-label="Footer">
             <ul className="grid gap-2.5">
@@ -469,7 +496,7 @@ export default async function Home({
                   href={phone.href}
                   className="-my-1.5 inline-block py-1.5 hover:text-cream"
                 >
-                  {phone.display}
+                  {phone.label}
                 </a>
               </p>
             ))}
