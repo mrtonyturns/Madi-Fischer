@@ -229,15 +229,24 @@ export function AreaMap({
           style: STYLE_URL,
           bounds,
           fitBoundsOptions: { padding },
-          // Stops the map swallowing a scroll on the way down the page.
-          cooperativeGestures: true,
+          // A fixed wall map: the view never moves, so the dots stay where
+          // the visitor's pointer is and are easy to hover. Every movement
+          // handler is off — not `interactive: false`, which would also
+          // detach the mouse events the hover lines and detail cards need.
+          dragPan: false,
+          dragRotate: false,
+          scrollZoom: false,
+          boxZoom: false,
+          doubleClickZoom: false,
+          touchZoomRotate: false,
+          touchPitch: false,
+          keyboard: false,
         });
         map = m;
         mapRef.current = m;
-        m.addControl(
-          new maplibregl.NavigationControl({ showCompass: false }),
-          "top-right",
-        );
+        // MapLibre still marks the canvas interactive and shows a grab hand;
+        // there is nothing to grab. Hovering a dot switches it to a pointer.
+        m.getCanvas().style.cursor = "default";
         m.on("error", () => setFailed(true));
 
         // The frame sizes itself from an aspect ratio, which is not resolved
@@ -246,21 +255,15 @@ export function AreaMap({
         //
         // The initial fit is made against that too-small box, and when the
         // padding doesn't fit inside it MapLibre gives up and shows the whole
-        // world. So refit to the places on every resize — until the visitor
-        // has panned or zoomed, after which their view is left alone.
-        let userMoved = false;
-        const markMoved = (e: { originalEvent?: unknown }) => {
-          if (e.originalEvent) userMoved = true;
-        };
-        m.on("dragstart", markMoved);
-        m.on("zoomstart", markMoved);
+        // world. So refit to the places on every resize; the visitor can't
+        // move the map, so there is never a view of theirs to preserve.
         ro = new ResizeObserver(() => {
           m.resize();
           const { clientWidth: w, clientHeight: h } = m.getContainer();
           const fits =
             w > padding.left + padding.right &&
             h > padding.top + padding.bottom;
-          if (!userMoved && fits) m.fitBounds(bounds, { padding, animate: false });
+          if (fits) m.fitBounds(bounds, { padding, animate: false });
         });
         ro.observe(holder.current!);
 
@@ -357,7 +360,7 @@ export function AreaMap({
           });
           m.on("mouseleave", "places", () => {
             setHoverId(null);
-            m.getCanvas().style.cursor = "";
+            m.getCanvas().style.cursor = "default";
           });
           m.on("click", "places", (e) => {
             const f = e.features?.[0];
