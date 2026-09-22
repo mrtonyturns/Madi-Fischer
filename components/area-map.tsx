@@ -223,7 +223,11 @@ export function AreaMap({
             [Math.min(...lons), Math.min(...lats)],
             [Math.max(...lons), Math.max(...lats)],
           ],
-          fitBoundsOptions: { padding: 48 },
+          // Extra headroom: the house marker's label pill hangs ~100px above
+          // its point, and at 48px it was cut off by the top of the frame.
+          fitBoundsOptions: {
+            padding: { top: 120, bottom: 48, left: 48, right: 48 },
+          },
           // Stops the map swallowing a scroll on the way down the page.
           cooperativeGestures: true,
         });
@@ -401,7 +405,13 @@ export function AreaMap({
   return (
     <div>
       <div className="relative aspect-3/4 overflow-hidden rounded-2xl border border-canopy/10 bg-secondary shadow-[0_26px_64px_-34px_rgba(11,46,34,0.5)] sm:aspect-16/10 sm:rounded-[26px]">
-        <div ref={holder} className="absolute inset-0" />
+        {/* Positioned inline, not with Tailwind's `absolute inset-0`.
+            MapLibre adds `.maplibregl-map { position: relative }` to this
+            element from an unlayered stylesheet, and unlayered CSS beats
+            anything in Tailwind v4's utilities layer however specific it
+            is — so the classes lost, the box collapsed to 0px tall, and the
+            map drew into nothing. Inline style outranks both. */}
+        <div ref={holder} style={{ position: "absolute", inset: 0 }} />
 
         {failed ? (
           <p className="absolute inset-0 z-10 flex items-center justify-center bg-secondary p-8 text-center text-sm text-muted-foreground">
