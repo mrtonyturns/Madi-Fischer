@@ -204,6 +204,14 @@ export function AreaMap({
       .then((maplibregl) => {
         if (cancelled || !holder.current) return;
 
+        // MapLibre looks for its worker next to its own bundle, where the
+        // bundler has renamed it and its sibling import — so the worker 404s
+        // and no tile ever loads. Point it at the unrenamed copy that
+        // scripts/copy-maplibre-worker.mjs puts in public/.
+        maplibregl.setWorkerUrl(
+          `/maplibre/${maplibregl.getVersion()}/maplibre-gl-worker.mjs`,
+        );
+
         const pts = [HOUSE, ...Object.values(POS).map((s) => s.at)];
         const lons = pts.map((p) => p[0]);
         const lats = pts.map((p) => p[1]);
@@ -283,6 +291,9 @@ export function AreaMap({
             source: "places",
             layout: {
               "text-field": ["get", "name"],
+              // Must name a font the OpenFreeMap style serves. Left unset,
+              // MapLibre asks for "Open Sans Regular", which 404s.
+              "text-font": ["Noto Sans Regular"],
               "text-size": 12,
               "text-offset": [0, 1.5],
               "text-anchor": "top",
