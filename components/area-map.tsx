@@ -216,18 +216,19 @@ export function AreaMap({
         const lons = pts.map((p) => p[0]);
         const lats = pts.map((p) => p[1]);
 
+        const bounds: [[number, number], [number, number]] = [
+          [Math.min(...lons), Math.min(...lats)],
+          [Math.max(...lons), Math.max(...lats)],
+        ];
+        // Extra headroom: the house marker's label pill hangs ~100px above
+        // its point, and at 48px it was cut off by the top of the frame.
+        const padding = { top: 120, bottom: 48, left: 48, right: 48 };
+
         const m = new maplibregl.Map({
           container: holder.current,
           style: STYLE_URL,
-          bounds: [
-            [Math.min(...lons), Math.min(...lats)],
-            [Math.max(...lons), Math.max(...lats)],
-          ],
-          // Extra headroom: the house marker's label pill hangs ~100px above
-          // its point, and at 48px it was cut off by the top of the frame.
-          fitBoundsOptions: {
-            padding: { top: 120, bottom: 48, left: 48, right: 48 },
-          },
+          bounds,
+          fitBoundsOptions: { padding },
           // Stops the map swallowing a scroll on the way down the page.
           cooperativeGestures: true,
         });
@@ -242,7 +243,25 @@ export function AreaMap({
         // The frame sizes itself from an aspect ratio, which is not resolved
         // on the frame MapLibre measures in — it initialised one pixel tall
         // and never requested a tile. Watch the box and tell it to remeasure.
-        ro = new ResizeObserver(() => m.resize());
+        //
+        // The initial fit is made against that too-small box, and when the
+        // padding doesn't fit inside it MapLibre gives up and shows the whole
+        // world. So refit to the places on every resize — until the visitor
+        // has panned or zoomed, after which their view is left alone.
+        let userMoved = false;
+        const markMoved = (e: { originalEvent?: unknown }) => {
+          if (e.originalEvent) userMoved = true;
+        };
+        m.on("dragstart", markMoved);
+        m.on("zoomstart", markMoved);
+        ro = new ResizeObserver(() => {
+          m.resize();
+          const { clientWidth: w, clientHeight: h } = m.getContainer();
+          const fits =
+            w > padding.left + padding.right &&
+            h > padding.top + padding.bottom;
+          if (!userMoved && fits) m.fitBounds(bounds, { padding, animate: false });
+        });
         ro.observe(holder.current!);
 
         m.on("load", () => {
