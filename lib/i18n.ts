@@ -106,6 +106,8 @@ interface Dictionary {
     directionsCta: string;
     mapsCta: string;
     listingCta: string;
+    /** Aria label for the × on a place's detail card. */
+    closeCta: string;
     places: PlaceCopy[];
   };
   know: {
@@ -273,6 +275,7 @@ export const dict: Record<Locale, Dictionary> = {
       directionsCta: "Get directions",
       mapsCta: "See on Google Maps",
       listingCta: "Fischer Tropitel on Google Maps",
+      closeCta: "Close",
       hint: "Hover any marker to see the line back to the house. Click one for what's there and directions.",
       places: [
         {
@@ -568,6 +571,7 @@ export const dict: Record<Locale, Dictionary> = {
       directionsCta: "Cómo llegar",
       mapsCta: "Ver en Google Maps",
       listingCta: "Fischer Tropitel en Google Maps",
+      closeCta: "Cerrar",
       hint: "Pase el cursor por cualquier punto para ver la línea hasta la casa. Haga clic para ver qué hay allí y cómo llegar.",
       places: [
         {

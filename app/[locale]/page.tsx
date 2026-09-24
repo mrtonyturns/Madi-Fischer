@@ -339,6 +339,7 @@ export default async function Home({
                       mapsCta: t.area.mapsCta,
                       listingUrl: GOOGLE_LISTING_URL,
                       listingCta: t.area.listingCta,
+                      closeCta: t.area.closeCta,
                     }}
                   />
                 </div>

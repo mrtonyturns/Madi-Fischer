@@ -1,5 +1,6 @@
 "use client";
 
+import { X } from "lucide-react";
 import { AnimatePresence, motion, useReducedMotion } from "motion/react";
 import type { GeoJSONSource, Map as MlMap } from "maplibre-gl";
 import * as React from "react";
@@ -54,6 +55,7 @@ export interface MapLabels {
   mapsCta: string;
   listingUrl: string;
   listingCta: string;
+  closeCta: string;
 }
 
 interface Spot {
@@ -368,6 +370,13 @@ export function AreaMap({
             const id = String(f.properties?.id);
             setActiveId((cur) => (cur === id ? null : id));
           });
+          // A click on empty map — anywhere that isn't a dot — closes the
+          // card. The dot handler above runs for the same click, so this one
+          // only acts when nothing was hit.
+          m.on("click", (e) => {
+            const hit = m.queryRenderedFeatures(e.point, { layers: ["places"] });
+            if (!hit.length) setActiveId(null);
+          });
 
           setReady(true);
         });
@@ -416,16 +425,38 @@ export function AreaMap({
     );
   }, [lit, ready, places]);
 
+  // The card covers some of the dots, so it has to be easy to dismiss:
+  // clicking anywhere outside this whole map section, or pressing Escape.
+  // Clicks inside the section are left to the map and the place list, which
+  // already open, switch or close the card themselves.
+  const root = React.useRef<HTMLDivElement>(null);
+  React.useEffect(() => {
+    if (!activeId) return;
+    const onPointer = (e: PointerEvent) => {
+      if (!root.current?.contains(e.target as Node)) setActiveId(null);
+    };
+    const onKey = (e: KeyboardEvent) => {
+      if (e.key === "Escape") setActiveId(null);
+    };
+    document.addEventListener("pointerdown", onPointer);
+    document.addEventListener("keydown", onKey);
+    return () => {
+      document.removeEventListener("pointerdown", onPointer);
+      document.removeEventListener("keydown", onKey);
+    };
+  }, [activeId]);
+
   const card = active ? (
     <CardBody
       place={active}
       labels={labels}
       catLabel={labels[active.category]}
+      onClose={() => setActiveId(null)}
     />
   ) : null;
 
   return (
-    <div>
+    <div ref={root}>
       <div className="relative aspect-3/4 overflow-hidden rounded-2xl border border-canopy/10 bg-secondary shadow-[0_26px_64px_-34px_rgba(11,46,34,0.5)] sm:aspect-16/10 sm:rounded-[26px]">
         {/* Positioned inline, not with Tailwind's `absolute inset-0`.
             MapLibre adds `.maplibregl-map { position: relative }` to this
@@ -475,7 +506,7 @@ export function AreaMap({
             animate={{ opacity: 1, y: 0 }}
             exit={{ opacity: 0 }}
             transition={{ duration: reduce ? 0.001 : 0.28 }}
-            className="mt-4 rounded-2xl border border-canopy/10 bg-card p-5 shadow-[0_18px_40px_-28px_rgba(11,46,34,0.5)] sm:hidden"
+            className="relative mt-4 rounded-2xl border border-canopy/10 bg-card p-5 shadow-[0_18px_40px_-28px_rgba(11,46,34,0.5)] sm:hidden"
           >
             {card}
           </motion.article>
@@ -531,15 +562,25 @@ function CardBody({
   place,
   labels,
   catLabel,
+  onClose,
 }: {
   place: Place;
   labels: MapLabels;
   catLabel: string;
+  onClose: () => void;
 }) {
   const spot = POS[place.id];
   return (
     <>
-      <div className="flex items-center gap-2.5">
+      <button
+        type="button"
+        onClick={onClose}
+        aria-label={labels.closeCta}
+        className="absolute top-3 right-3 flex h-9 w-9 items-center justify-center rounded-full text-muted-foreground transition-colors duration-200 hover:bg-canopy/8 hover:text-canopy focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-forest"
+      >
+        <X className="h-4 w-4" strokeWidth={2} aria-hidden />
+      </button>
+      <div className="flex items-center gap-2.5 pr-8">
         <span
           className="h-2 w-2 rounded-full"
           style={{ backgroundColor: CATEGORY_COLOR[place.category] }}
