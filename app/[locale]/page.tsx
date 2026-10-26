@@ -26,15 +26,14 @@ const EMAIL = "madi@fischertropitel.com";
 // the inline calendar section appears and casa buttons open the booking popup.
 const CAL_CONFIGURED = Boolean(process.env.NEXT_PUBLIC_CAL_LINK);
 
-// PLACEHOLDER LINKS — these point at Airbnb's homepage, not at the casas.
-// Madi had one combined listing and needs to split it into three; drop each
-// listing URL in here, in the same order as t.casas.list (Casa Cascada, Loads
-// of Toads, Casa Verde) and the buttons start working. Setting an entry to
-// null falls the button back to the contact form.
+// Madi's three Airbnb listings, in the same order as t.casas.list (Casa
+// Cascada, Loads of Toads, Casa Verde). Setting an entry to null falls that
+// casa's button back to the contact form.
 const AIRBNB_URLS: (string | null)[] = [
-  "https://www.airbnb.com",
-  "https://www.airbnb.com",
-  "https://www.airbnb.com",
+  // Casa Cascada — listed on Airbnb as "Waterfall House".
+  "https://www.airbnb.com/h/casacascadatuna",
+  "https://www.airbnb.com/h/fischertropitelloadsoftoads",
+  "https://www.airbnb.com/h/casaverdemarlin",
 ];
 
 // Search link rather than the canonical listing URL, because the profile
