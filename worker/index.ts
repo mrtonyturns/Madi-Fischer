@@ -271,10 +271,43 @@ async function handleReviews(request: Request, env: Env): Promise<Response> {
   );
 }
 
+/**
+ * Which locale a visitor to "/" should land on.
+ *
+ * Only Spanish is worth detecting: everything else gets English, which is
+ * also what the bare `es` of a browser set to Spanish-anything resolves to.
+ */
+function localeFor(request: Request): "en" | "es" {
+  const header = request.headers.get("accept-language") ?? "";
+  // "es-CR,es;q=0.9,en;q=0.8" — compare only the first, highest-q entry, so a
+  // browser that merely lists Spanish after English still gets English.
+  const first = header.split(",")[0]?.trim().toLowerCase() ?? "";
+  return first.startsWith("es") ? "es" : "en";
+}
+
 export default {
   async fetch(request: Request, env: Env): Promise<Response> {
     const url = new URL(request.url);
     const path = url.pathname.replace(/\/$/, "");
+
+    /*
+     * "/" redirects here, at the edge, rather than in the browser.
+     *
+     * The static export can't redirect, so app/(redirect)/page.tsx shipped a
+     * meta-refresh page — which the browser has to paint before it can obey,
+     * and that paint was a white flash of "English · Español" on every first
+     * visit. A 302 from the Worker is never painted at all. That page stays
+     * in the export as the no-Worker fallback.
+     *
+     * Needs "/" in `run_worker_first` (wrangler.jsonc), or the asset handler
+     * answers first and the Worker never sees the request.
+     */
+    if (path === "") {
+      return Response.redirect(
+        new URL(`/${localeFor(request)}/${url.search}`, url.origin).toString(),
+        302,
+      );
+    }
 
     if (path === "/api/contact") {
       if (request.method !== "POST") {
