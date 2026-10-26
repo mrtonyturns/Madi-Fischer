@@ -11,6 +11,14 @@ const nextConfig: NextConfig = {
   // Must stay in sync with `html_handling` in wrangler.jsonc, or nested routes
   // bounce between trailing-slash variants and 404.
   trailingSlash: true,
+
+  experimental: {
+    // Serves app/global-not-found.tsx for unmatched URLs. The plain
+    // `not-found` convention needs a single root layout to render inside;
+    // this app has two (app/[locale] and app/(redirect)), so it would have
+    // fallen back to Next's own black error page — see that file's comment.
+    globalNotFound: true,
+  },
 };
 
 export default nextConfig;

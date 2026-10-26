@@ -212,11 +212,8 @@ function MenuPanel({
             <a
               href={link.href}
               onClick={onClose}
-              className="group flex items-baseline gap-4 rounded-2xl px-4 py-3 transition-colors hover:bg-cream/8"
+              className="group flex items-baseline rounded-2xl px-4 py-3 transition-colors hover:bg-cream/8"
             >
-              <span className="font-mono text-xs text-sun/70 tabular-nums">
-                {String(i + 1).padStart(2, "0")}
-              </span>
               <span className="font-display text-3xl font-normal text-cream transition-colors group-hover:text-sun sm:text-4xl">
                 {link.label}
               </span>

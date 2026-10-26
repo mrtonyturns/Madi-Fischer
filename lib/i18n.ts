@@ -139,6 +139,8 @@ interface Dictionary {
   footer: {
     tagline: string;
     rights: string;
+    /** Agency credit in the bottom bar. KickLick is never translated. */
+    credit: string;
   };
 }
 
@@ -436,6 +438,7 @@ export const dict: Record<Locale, Dictionary> = {
     footer: {
       tagline: "Jungle casa rentals near Quepos, Costa Rica",
       rights: "Pura vida.",
+      credit: "Website by KickLick",
     },
   },
   es: {
@@ -732,6 +735,7 @@ export const dict: Record<Locale, Dictionary> = {
     footer: {
       tagline: "Casas de alquiler en la selva cerca de Quepos, Costa Rica",
       rights: "Pura vida.",
+      credit: "Sitio web por KickLick",
     },
   },
 };

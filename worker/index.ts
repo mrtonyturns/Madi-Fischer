@@ -10,20 +10,28 @@ interface Env {
   ASSETS: Fetcher;
 
   /* ---- Where enquiries go ----
-   * Two routes, checked in this order. The first one configured wins.
+   * Two routes, checked in this order. The first one available wins.
    *
-   * 1. Email via Resend — the normal path.
-   *      npx wrangler secret put RESEND_API_KEY
-   *    CONTACT_TO_EMAIL and CONTACT_FROM_EMAIL are plain vars in
-   *    wrangler.jsonc; only the key is a secret.
+   * 1. Cloudflare Email Routing — the normal path. No third-party mail
+   *    provider and no API key: the Worker hands the message to Cloudflare
+   *    through the SEND_EMAIL binding declared in wrangler.jsonc.
+   *
+   *    Cloudflare requires both ends to be its own:
+   *      - CONTACT_FROM_EMAIL must be on a zone in this account with Email
+   *        Routing enabled (fischertropitelretreat.com).
+   *      - CONTACT_TO_EMAIL must be a VERIFIED destination address in that
+   *        zone's Email Routing — Cloudflare emails it a confirmation link
+   *        once, and sending fails until someone clicks it.
    *
    * 2. A webhook — a Zapier catch hook, a CRM, anything that takes JSON.
    *      npx wrangler secret put CONTACT_WEBHOOK_URL
+   *    Kept as a backstop so a lead still lands somewhere if the mail path
+   *    is rejected.
    *
-   * With neither set the endpoint fails loudly. A dropped lead that looked
-   * like a success is the worst outcome available here.
+   * With neither available the endpoint fails loudly. A dropped lead that
+   * looked like a success is the worst outcome available here.
    */
-  RESEND_API_KEY?: string;
+  SEND_EMAIL?: SendEmail;
   CONTACT_TO_EMAIL?: string;
   CONTACT_FROM_EMAIL?: string;
   CONTACT_WEBHOOK_URL?: string;
@@ -76,8 +84,11 @@ async function handleContact(request: Request, env: Env): Promise<Response> {
 
   const source = new URL(request.url).hostname;
 
-  if (env.RESEND_API_KEY) {
-    return sendEmail(payload, env, source);
+  if (env.SEND_EMAIL) {
+    const sent = await sendEmail(payload, env, source);
+    // Fall through to the webhook only if the mail path failed and one is
+    // configured; otherwise the visitor gets the mail path's own answer.
+    if (sent.ok || !env.CONTACT_WEBHOOK_URL) return sent.response;
   }
 
   if (env.CONTACT_WEBHOOK_URL) {
@@ -100,7 +111,9 @@ async function handleContact(request: Request, env: Env): Promise<Response> {
   }
 
   // Fail loudly rather than telling the visitor it worked.
-  console.error("No RESEND_API_KEY or CONTACT_WEBHOOK_URL — submission dropped");
+  console.error(
+    "No SEND_EMAIL binding or CONTACT_WEBHOOK_URL — submission dropped",
+  );
   return bad("The contact form isn't configured yet.", 500);
 }
 
@@ -113,16 +126,23 @@ function esc(value: string): string {
     .replace(/"/g, "&quot;");
 }
 
+/**
+ * Hands the enquiry to Cloudflare Email Routing.
+ *
+ * `ok` is reported separately from the Response so the caller can decide
+ * whether to try the webhook backstop; the visitor never sees either outcome
+ * in detail.
+ */
 async function sendEmail(
   payload: ContactPayload,
   env: Env,
   source: string,
-): Promise<Response> {
-  const to = env.CONTACT_TO_EMAIL ?? "tony@kicklick.com";
-  // resend.dev is Resend's shared sending domain — it works with no DNS setup
-  // at all, which is why it is the default. Swap it for an address on a
-  // verified domain when there is one; shared domains land in spam more often.
-  const from = env.CONTACT_FROM_EMAIL ?? "Fischer Tropitel <onboarding@resend.dev>";
+): Promise<{ ok: boolean; response: Response }> {
+  const to = env.CONTACT_TO_EMAIL ?? "madilynfischer1991@gmail.com";
+  // Must be on a zone in this Cloudflare account with Email Routing on. The
+  // mailbox doesn't have to exist — nothing is ever delivered to it — but the
+  // domain does, or Cloudflare rejects the send.
+  const from = env.CONTACT_FROM_EMAIL ?? "website@fischertropitelretreat.com";
 
   const lines = [
     `Name:    ${payload.name}`,
@@ -134,17 +154,13 @@ async function sendEmail(
     `— sent from ${source}`,
   ].join("\n");
 
-  const res = await fetch("https://api.resend.com/emails", {
-    method: "POST",
-    headers: {
-      Authorization: `Bearer ${env.RESEND_API_KEY}`,
-      "Content-Type": "application/json",
-    },
-    body: JSON.stringify({
-      from,
-      to: [to],
-      // Hitting reply goes straight back to the guest, not to the Worker.
-      reply_to: payload.email,
+  try {
+    await env.SEND_EMAIL!.send({
+      from: { name: "Fischer Tropitel website", email: from },
+      to,
+      // Hitting reply in Gmail goes straight back to the guest, not to a
+      // mailbox nobody reads.
+      replyTo: { name: payload.name, email: payload.email },
       subject: `Fischer Tropitel enquiry — ${payload.name}`,
       text: lines,
       html: `
@@ -157,16 +173,18 @@ async function sendEmail(
           <p style="margin:20px 0 0;white-space:pre-wrap">${esc(payload.message)}</p>
           <p style="margin:24px 0 0;font-size:12px;color:#8a978f">Sent from ${esc(source)}</p>
         </div>`,
-    }),
-  });
-
-  if (!res.ok) {
-    // The provider's reason goes to the log, never to the visitor.
-    console.error("Resend rejected the message", res.status, await res.text());
-    return bad("We couldn't send that just now. Please try again.", 502);
+    });
+  } catch (error) {
+    // Cloudflare's reason goes to the log, never to the visitor. The usual
+    // one is an unverified destination address.
+    console.error("Email Routing rejected the message", error);
+    return {
+      ok: false,
+      response: bad("We couldn't send that just now. Please try again.", 502),
+    };
   }
 
-  return Response.json({ ok: true });
+  return { ok: true, response: Response.json({ ok: true }) };
 }
 
 /* ------------------------------------------------------------------ */

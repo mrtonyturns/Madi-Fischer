@@ -512,8 +512,20 @@ export default async function Home({
           </div>
         </div>
         <div className="relative z-10 mx-auto mt-12 max-w-7xl px-5 sm:px-8">
-          <div className="border-t border-cream/12 py-7 text-sm text-cream/45">
-            © {new Date().getFullYear()} Fischer Tropitel. {t.footer.rights}
+          <div className="flex flex-wrap items-center justify-between gap-x-6 gap-y-1 border-t border-cream/12 py-7 text-sm text-cream/45">
+            <p>
+              © {new Date().getFullYear()} Fischer Tropitel. {t.footer.rights}
+            </p>
+            <p>
+              <a
+                href="https://kicklick.com"
+                target="_blank"
+                rel="noopener noreferrer"
+                className="-my-1.5 inline-block py-1.5 transition-colors hover:text-cream"
+              >
+                {t.footer.credit}
+              </a>
+            </p>
           </div>
         </div>
       </footer>
