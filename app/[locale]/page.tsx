@@ -1,5 +1,5 @@
 import Image from "next/image";
-import { Mail, MapPin, Phone } from "lucide-react";
+import { MapPin, Phone } from "lucide-react";
 
 import { Item, Lift, Reveal, Stagger } from "@/components/animate";
 import { AreaMap } from "@/components/area-map";
@@ -20,7 +20,6 @@ const PHONES = [
   { label: "+1 (715) 573-5576", href: "tel:+17155735576" },
   { label: "+1 (715) 581-7713", href: "tel:+17155817713" },
 ];
-const EMAIL = "madi@fischertropitel.com";
 
 // Set NEXT_PUBLIC_CAL_LINK (build variable) to switch on Cal.com booking:
 // the inline calendar section appears and casa buttons open the booking popup.
@@ -78,11 +77,11 @@ const CASA_IMAGES: {
       alt: "The front of Casa Cascada from the shared deck",
       position: "object-[center_62%]",
     },
-    // TODO: confirm with Madi which casa this bedroom belongs to — the two
-    // interior shots arrived unlabelled, so the alts stay property-generic.
+    // Both interior shots arrived unlabelled, so the alts describe the room
+    // rather than name a casa. Madi can still confirm which is which.
     {
       src: "/images/bedroom-1.jpg",
-      alt: "A bedroom at the casas, its window filled with jungle",
+      alt: "A bedroom with a double bed and a window onto the jungle",
     },
   ],
   [
@@ -91,10 +90,9 @@ const CASA_IMAGES: {
       alt: "The front door and windows of Loads of Toads",
       position: "object-[center_64%]",
     },
-    // TODO: as above — confirm which casa this bedroom is in.
     {
       src: "/images/bedroom-2.jpg",
-      alt: "A bedroom at the casas, with the jungle outside the window",
+      alt: "A bedroom with a double bed, clothes rail and jungle window",
     },
     {
       src: "/images/porch-deck-2.jpg",
@@ -120,12 +118,16 @@ const HIGHLIGHT_IMAGES = [
     src: "/images/porch-deck-1.jpg",
     alt: "The shared porch's outdoor bar, rocking chairs and hammock swing",
   },
-  { src: "/images/property-2.jpg", alt: "The gated entrance to the property" },
-  // property-3 moved into Casa Verde's slideshow; this wide driveway shot
-  // keeps the carousel from repeating it.
+  // Frames from the property's own drone footage, because the photo set has
+  // no fishing or hot-springs shot and the gate and driveway said nothing
+  // about either card. Swap these the day Madi sends a boat and a spring.
   {
-    src: "/images/property-4.jpg",
-    alt: "The casas from the property's gravel driveway",
+    src: "/images/property-aerial.jpg",
+    alt: "The casas on their mountain, the river running past them",
+  },
+  {
+    src: "/images/waterfall-river.jpg",
+    alt: "The waterfall dropping into the river below the casas",
   },
 ];
 
@@ -420,19 +422,6 @@ export default async function Home({
                       </a>
                     </li>
                   ))}
-                  <li className="flex items-center gap-3">
-                    <Mail
-                      className="h-4.5 w-4.5 text-forest"
-                      strokeWidth={1.75}
-                      aria-hidden
-                    />
-                    <a
-                      href={`mailto:${EMAIL}`}
-                      className="-my-2 inline-block py-2 font-medium break-all hover:underline"
-                    >
-                      {EMAIL}
-                    </a>
-                  </li>
                   <li className="flex items-start gap-3">
                     <MapPin
                       className="mt-0.5 h-4.5 w-4.5 shrink-0 text-forest"
@@ -500,14 +489,6 @@ export default async function Home({
                 </a>
               </p>
             ))}
-            <p className="mt-1">
-              <a
-                href={`mailto:${EMAIL}`}
-                className="-my-1.5 inline-block py-1.5 break-all hover:text-cream"
-              >
-                {EMAIL}
-              </a>
-            </p>
             <p className="mt-4 text-sm text-cream/45">{t.contact.location}</p>
           </div>
         </div>

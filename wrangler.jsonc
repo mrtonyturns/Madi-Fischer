@@ -4,6 +4,16 @@
   "main": "./worker/index.ts",
   "compatibility_date": "2026-08-07",
 
+  // The primary domain. On the next deploy Cloudflare creates these custom
+  // domains and points their DNS at this Worker — before that the apex was
+  // proxied to an origin that no longer answers, which is why it returned
+  // 522. Only the A/AAAA records change; the MX records that carry the
+  // domain's email forwarding are untouched.
+  "routes": [
+    { "pattern": "fischertropitelretreat.com", "custom_domain": true },
+    { "pattern": "www.fischertropitelretreat.com", "custom_domain": true }
+  ],
+
   // Contact-form enquiries are sent through Cloudflare Email Routing — no
   // third-party mail provider and no API key. Two one-time steps in the
   // dashboard, both on the fischertropitelretreat.com zone:
