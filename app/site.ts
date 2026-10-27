@@ -27,7 +27,7 @@ export const display = Fraunces({
 });
 
 export const SITE_URL =
-  process.env.NEXT_PUBLIC_SITE_URL ?? "https://www.fischertropitel.com";
+  process.env.NEXT_PUBLIC_SITE_URL ?? "https://fischertropitelretreat.com";
 
 /** Applied to <html> by both root layouts. */
 export const htmlClass = `${sans.variable} ${display.variable} scroll-smooth`;

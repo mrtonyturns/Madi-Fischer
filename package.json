@@ -3,13 +3,13 @@
   "version": "0.1.0",
   "private": true,
   "scripts": {
-    "dev": "next dev",
-    "build": "next build",
+    "dev": "node scripts/copy-maplibre-worker.mjs && next dev",
+    "build": "node scripts/copy-maplibre-worker.mjs && next build",
     "start": "next start",
     "lint": "eslint",
     "check:worker": "tsc -p worker/tsconfig.json",
     "preview": "npx wrangler dev",
-    "deploy": "next build && npx wrangler deploy"
+    "deploy": "node scripts/copy-maplibre-worker.mjs && next build && npx wrangler deploy"
   },
   "dependencies": {
     "@calcom/embed-react": "^1.5.3",

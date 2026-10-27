@@ -3,7 +3,7 @@ import type { MetadataRoute } from "next";
 import { locales } from "@/lib/i18n";
 
 const BASE =
-  process.env.NEXT_PUBLIC_SITE_URL ?? "https://www.fischertropitel.com";
+  process.env.NEXT_PUBLIC_SITE_URL ?? "https://fischertropitelretreat.com";
 
 export const dynamic = "force-static";
 

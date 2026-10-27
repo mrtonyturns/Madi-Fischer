@@ -4,11 +4,37 @@
   "main": "./worker/index.ts",
   "compatibility_date": "2026-08-07",
 
-  // Where contact-form enquiries are emailed. Not a secret — the sending
-  // credential is RESEND_API_KEY, set with `wrangler secret put`.
+  // The primary domain. On the next deploy Cloudflare creates these custom
+  // domains and points their DNS at this Worker — before that the apex was
+  // proxied to an origin that no longer answers, which is why it returned
+  // 522. Only the A/AAAA records change; the MX records that carry the
+  // domain's email forwarding are untouched.
+  "routes": [
+    { "pattern": "fischertropitelretreat.com", "custom_domain": true },
+    { "pattern": "www.fischertropitelretreat.com", "custom_domain": true }
+  ],
+
+  // Contact-form enquiries are sent through Cloudflare Email Routing — no
+  // third-party mail provider and no API key. Two one-time steps in the
+  // dashboard, both on the fischertropitelretreat.com zone:
+  //
+  //   1. Email → Email Routing → enable it on the zone (adds the MX records).
+  //   2. Destination addresses → add madilynfischer1991@gmail.com and click
+  //      the link Cloudflare emails there. Sending fails until it is verified.
+  //
+  // CONTACT_FROM_EMAIL only has to be ON that zone; the mailbox itself never
+  // receives anything.
+  "send_email": [
+    {
+      "name": "SEND_EMAIL",
+      // Belt and braces: even if CONTACT_TO_EMAIL were changed by mistake,
+      // this Worker can only ever send to Madi.
+      "destination_address": "madilynfischer1991@gmail.com"
+    }
+  ],
   "vars": {
-    "CONTACT_TO_EMAIL": "tony@kicklick.com",
-    "CONTACT_FROM_EMAIL": "Fischer Tropitel <onboarding@resend.dev>"
+    "CONTACT_TO_EMAIL": "madilynfischer1991@gmail.com",
+    "CONTACT_FROM_EMAIL": "website@fischertropitelretreat.com"
   },
   "assets": {
     "directory": "./out",
@@ -16,7 +42,9 @@
     "not_found_handling": "404-page",
     // Pairs with trailingSlash: true in next.config.ts.
     "html_handling": "force-trailing-slash",
-    // Only form posts hit the Worker; static files are served directly.
-    "run_worker_first": ["/api/*"]
+    // Form posts and "/" hit the Worker; every other static file is served
+    // directly. "/" is here so the Worker can 302 to /en/ or /es/ before the
+    // browser paints the meta-refresh chooser page.
+    "run_worker_first": ["/api/*", "/"]
   }
 }

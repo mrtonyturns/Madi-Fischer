@@ -3,11 +3,11 @@
   "configurations": [
     {
       "name": "dev",
-      "runtimeExecutable": "npm",
+      "runtimeExecutable": "bun",
       "runtimeArgs": [
+        "--bun",
         "run",
         "dev",
-        "--",
         "--port",
         "3000"
       ],
@@ -15,9 +15,8 @@
     },
     {
       "name": "static",
-      "runtimeExecutable": "npx",
+      "runtimeExecutable": "bunx",
       "runtimeArgs": [
-        "--yes",
         "serve",
         "out",
         "-l",

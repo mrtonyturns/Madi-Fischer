@@ -106,6 +106,8 @@ interface Dictionary {
     directionsCta: string;
     mapsCta: string;
     listingCta: string;
+    /** Aria label for the × on a place's detail card. */
+    closeCta: string;
     places: PlaceCopy[];
   };
   know: {
@@ -137,6 +139,8 @@ interface Dictionary {
   footer: {
     tagline: string;
     rights: string;
+    /** Agency credit in the bottom bar. KickLick is never translated. */
+    credit: string;
   };
 }
 
@@ -171,7 +175,7 @@ export const dict: Record<Locale, Dictionary> = {
       ctaSecondary: "Plan your stay",
       scrollCue: "Scroll",
       imageAlt:
-        "The Fischer Tropitel casas on their private mountain property above Quepos, Costa Rica",
+        "Aerial view of the waterfall and river below the Fischer Tropitel casas near Quepos, Costa Rica",
     },
     highlights: {
       eyebrow: "Life on the mountain",
@@ -222,7 +226,7 @@ export const dict: Record<Locale, Dictionary> = {
       eyebrow: "The Casas",
       title: "Pick your casa",
       intro:
-        "Three fully furnished houses on one secluded mountain property. Each has two bedrooms, one bathroom, a fully equipped kitchen, and sleeps six — eighteen if you take all three. We bring our own three kids down every chance we get, so it is built for families as much as for fishermen.",
+        "Three individual units on one secluded mountain property. Each has two bedrooms, one bathroom, a fully equipped kitchen, and sleeps about six — eighteen people altogether if you take all three. We bring our own three kids down every chance we get, so it is built for families as much as for fishermen.",
       perNight: "/ night",
       beds: "2 bedrooms · sleeps ~6",
       bath: "1 bathroom",
@@ -273,6 +277,7 @@ export const dict: Record<Locale, Dictionary> = {
       directionsCta: "Get directions",
       mapsCta: "See on Google Maps",
       listingCta: "Fischer Tropitel on Google Maps",
+      closeCta: "Close",
       hint: "Hover any marker to see the line back to the house. Click one for what's there and directions.",
       places: [
         {
@@ -433,6 +438,7 @@ export const dict: Record<Locale, Dictionary> = {
     footer: {
       tagline: "Jungle casa rentals near Quepos, Costa Rica",
       rights: "Pura vida.",
+      credit: "Website by KickLick",
     },
   },
   es: {
@@ -466,7 +472,7 @@ export const dict: Record<Locale, Dictionary> = {
       ctaSecondary: "Planee su estadía",
       scrollCue: "Baje",
       imageAlt:
-        "Las casas de Fischer Tropitel en su propiedad privada en la montaña sobre Quepos, Costa Rica",
+        "Vista aérea de la catarata y el río bajo las casas de Fischer Tropitel cerca de Quepos, Costa Rica",
     },
     highlights: {
       eyebrow: "La vida en la montaña",
@@ -517,7 +523,7 @@ export const dict: Record<Locale, Dictionary> = {
       eyebrow: "Las Casas",
       title: "Elija su casa",
       intro:
-        "Tres casas totalmente amuebladas en una propiedad privada en la montaña. Cada una tiene dos habitaciones, un baño, cocina totalmente equipada y espacio para seis personas — dieciocho si toma las tres. Bajamos con nuestros tres hijos cada vez que podemos, así que está pensada tanto para familias como para pescadores.",
+        "Tres unidades individuales en una propiedad privada en la montaña. Cada una tiene dos habitaciones, un baño, cocina totalmente equipada y espacio para unas seis personas — dieciocho en total si toma las tres. Bajamos con nuestros tres hijos cada vez que podemos, así que está pensada tanto para familias como para pescadores.",
       perNight: "/ noche",
       beds: "2 habitaciones · ~6 personas",
       bath: "1 baño",
@@ -568,6 +574,7 @@ export const dict: Record<Locale, Dictionary> = {
       directionsCta: "Cómo llegar",
       mapsCta: "Ver en Google Maps",
       listingCta: "Fischer Tropitel en Google Maps",
+      closeCta: "Cerrar",
       hint: "Pase el cursor por cualquier punto para ver la línea hasta la casa. Haga clic para ver qué hay allí y cómo llegar.",
       places: [
         {
@@ -728,6 +735,7 @@ export const dict: Record<Locale, Dictionary> = {
     footer: {
       tagline: "Casas de alquiler en la selva cerca de Quepos, Costa Rica",
       rights: "Pura vida.",
+      credit: "Sitio web por KickLick",
     },
   },
 };

@@ -1,5 +1,6 @@
 "use client";
 
+import { X } from "lucide-react";
 import { AnimatePresence, motion, useReducedMotion } from "motion/react";
 import type { GeoJSONSource, Map as MlMap } from "maplibre-gl";
 import * as React from "react";
@@ -54,6 +55,7 @@ export interface MapLabels {
   mapsCta: string;
   listingUrl: string;
   listingCta: string;
+  closeCta: string;
 }
 
 interface Spot {
@@ -204,33 +206,67 @@ export function AreaMap({
       .then((maplibregl) => {
         if (cancelled || !holder.current) return;
 
+        // MapLibre looks for its worker next to its own bundle, where the
+        // bundler has renamed it and its sibling import — so the worker 404s
+        // and no tile ever loads. Point it at the unrenamed copy that
+        // scripts/copy-maplibre-worker.mjs puts in public/.
+        maplibregl.setWorkerUrl(
+          `/maplibre/${maplibregl.getVersion()}/maplibre-gl-worker.mjs`,
+        );
+
         const pts = [HOUSE, ...Object.values(POS).map((s) => s.at)];
         const lons = pts.map((p) => p[0]);
         const lats = pts.map((p) => p[1]);
 
+        const bounds: [[number, number], [number, number]] = [
+          [Math.min(...lons), Math.min(...lats)],
+          [Math.max(...lons), Math.max(...lats)],
+        ];
+        // Extra headroom: the house marker's label pill hangs ~100px above
+        // its point, and at 48px it was cut off by the top of the frame.
+        const padding = { top: 120, bottom: 48, left: 48, right: 48 };
+
         const m = new maplibregl.Map({
           container: holder.current,
           style: STYLE_URL,
-          bounds: [
-            [Math.min(...lons), Math.min(...lats)],
-            [Math.max(...lons), Math.max(...lats)],
-          ],
-          fitBoundsOptions: { padding: 48 },
-          // Stops the map swallowing a scroll on the way down the page.
-          cooperativeGestures: true,
+          bounds,
+          fitBoundsOptions: { padding },
+          // A fixed wall map: the view never moves, so the dots stay where
+          // the visitor's pointer is and are easy to hover. Every movement
+          // handler is off — not `interactive: false`, which would also
+          // detach the mouse events the hover lines and detail cards need.
+          dragPan: false,
+          dragRotate: false,
+          scrollZoom: false,
+          boxZoom: false,
+          doubleClickZoom: false,
+          touchZoomRotate: false,
+          touchPitch: false,
+          keyboard: false,
         });
         map = m;
         mapRef.current = m;
-        m.addControl(
-          new maplibregl.NavigationControl({ showCompass: false }),
-          "top-right",
-        );
+        // MapLibre still marks the canvas interactive and shows a grab hand;
+        // there is nothing to grab. Hovering a dot switches it to a pointer.
+        m.getCanvas().style.cursor = "default";
         m.on("error", () => setFailed(true));
 
         // The frame sizes itself from an aspect ratio, which is not resolved
         // on the frame MapLibre measures in — it initialised one pixel tall
         // and never requested a tile. Watch the box and tell it to remeasure.
-        ro = new ResizeObserver(() => m.resize());
+        //
+        // The initial fit is made against that too-small box, and when the
+        // padding doesn't fit inside it MapLibre gives up and shows the whole
+        // world. So refit to the places on every resize; the visitor can't
+        // move the map, so there is never a view of theirs to preserve.
+        ro = new ResizeObserver(() => {
+          m.resize();
+          const { clientWidth: w, clientHeight: h } = m.getContainer();
+          const fits =
+            w > padding.left + padding.right &&
+            h > padding.top + padding.bottom;
+          if (fits) m.fitBounds(bounds, { padding, animate: false });
+        });
         ro.observe(holder.current!);
 
         m.on("load", () => {
@@ -283,6 +319,9 @@ export function AreaMap({
             source: "places",
             layout: {
               "text-field": ["get", "name"],
+              // Must name a font the OpenFreeMap style serves. Left unset,
+              // MapLibre asks for "Open Sans Regular", which 404s.
+              "text-font": ["Noto Sans Regular"],
               "text-size": 12,
               "text-offset": [0, 1.5],
               "text-anchor": "top",
@@ -315,19 +354,42 @@ export function AreaMap({
             .setLngLat(HOUSE)
             .addTo(m);
 
-          m.on("mousemove", "places", (e) => {
-            const f = e.features?.[0];
-            if (!f) return;
-            setHoverId(String(f.properties?.id));
-            m.getCanvas().style.cursor = "pointer";
+          /*
+           * The drawn dot is only ~9px across, which is a fiddly thing to hit
+           * — the pointer has to land almost dead centre, and the coastal
+           * places sit close together. So hover and click search a box around
+           * the pointer rather than the exact pixel under it.
+           *
+           * An invisible wider circle layer would be the tidier trick, but
+           * MapLibre doesn't hit-test features it hasn't actually drawn, so a
+           * `circle-opacity: 0` layer is never returned by a query.
+           */
+          const HIT = 14;
+          const hitAt = (p: { x: number; y: number }) =>
+            m.queryRenderedFeatures(
+              [
+                [p.x - HIT, p.y - HIT],
+                [p.x + HIT, p.y + HIT],
+              ],
+              { layers: ["places"] },
+            )[0];
+
+          m.on("mousemove", (e) => {
+            const f = hitAt(e.point);
+            setHoverId(f ? String(f.properties?.id) : null);
+            m.getCanvas().style.cursor = f ? "pointer" : "default";
           });
-          m.on("mouseleave", "places", () => {
+          m.on("mouseout", () => {
             setHoverId(null);
-            m.getCanvas().style.cursor = "";
+            m.getCanvas().style.cursor = "default";
           });
-          m.on("click", "places", (e) => {
-            const f = e.features?.[0];
-            if (!f) return;
+          m.on("click", (e) => {
+            const f = hitAt(e.point);
+            // A click on empty map closes the open card.
+            if (!f) {
+              setActiveId(null);
+              return;
+            }
             const id = String(f.properties?.id);
             setActiveId((cur) => (cur === id ? null : id));
           });
@@ -379,18 +441,46 @@ export function AreaMap({
     );
   }, [lit, ready, places]);
 
+  // The card covers some of the dots, so it has to be easy to dismiss:
+  // clicking anywhere outside this whole map section, or pressing Escape.
+  // Clicks inside the section are left to the map and the place list, which
+  // already open, switch or close the card themselves.
+  const root = React.useRef<HTMLDivElement>(null);
+  React.useEffect(() => {
+    if (!activeId) return;
+    const onPointer = (e: PointerEvent) => {
+      if (!root.current?.contains(e.target as Node)) setActiveId(null);
+    };
+    const onKey = (e: KeyboardEvent) => {
+      if (e.key === "Escape") setActiveId(null);
+    };
+    document.addEventListener("pointerdown", onPointer);
+    document.addEventListener("keydown", onKey);
+    return () => {
+      document.removeEventListener("pointerdown", onPointer);
+      document.removeEventListener("keydown", onKey);
+    };
+  }, [activeId]);
+
   const card = active ? (
     <CardBody
       place={active}
       labels={labels}
       catLabel={labels[active.category]}
+      onClose={() => setActiveId(null)}
     />
   ) : null;
 
   return (
-    <div>
+    <div ref={root}>
       <div className="relative aspect-3/4 overflow-hidden rounded-2xl border border-canopy/10 bg-secondary shadow-[0_26px_64px_-34px_rgba(11,46,34,0.5)] sm:aspect-16/10 sm:rounded-[26px]">
-        <div ref={holder} className="absolute inset-0" />
+        {/* Positioned inline, not with Tailwind's `absolute inset-0`.
+            MapLibre adds `.maplibregl-map { position: relative }` to this
+            element from an unlayered stylesheet, and unlayered CSS beats
+            anything in Tailwind v4's utilities layer however specific it
+            is — so the classes lost, the box collapsed to 0px tall, and the
+            map drew into nothing. Inline style outranks both. */}
+        <div ref={holder} style={{ position: "absolute", inset: 0 }} />
 
         {failed ? (
           <p className="absolute inset-0 z-10 flex items-center justify-center bg-secondary p-8 text-center text-sm text-muted-foreground">
@@ -432,7 +522,7 @@ export function AreaMap({
             animate={{ opacity: 1, y: 0 }}
             exit={{ opacity: 0 }}
             transition={{ duration: reduce ? 0.001 : 0.28 }}
-            className="mt-4 rounded-2xl border border-canopy/10 bg-card p-5 shadow-[0_18px_40px_-28px_rgba(11,46,34,0.5)] sm:hidden"
+            className="relative mt-4 rounded-2xl border border-canopy/10 bg-card p-5 shadow-[0_18px_40px_-28px_rgba(11,46,34,0.5)] sm:hidden"
           >
             {card}
           </motion.article>
@@ -488,15 +578,25 @@ function CardBody({
   place,
   labels,
   catLabel,
+  onClose,
 }: {
   place: Place;
   labels: MapLabels;
   catLabel: string;
+  onClose: () => void;
 }) {
   const spot = POS[place.id];
   return (
     <>
-      <div className="flex items-center gap-2.5">
+      <button
+        type="button"
+        onClick={onClose}
+        aria-label={labels.closeCta}
+        className="absolute top-3 right-3 flex h-9 w-9 items-center justify-center rounded-full text-muted-foreground transition-colors duration-200 hover:bg-canopy/8 hover:text-canopy focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-forest"
+      >
+        <X className="h-4 w-4" strokeWidth={2} aria-hidden />
+      </button>
+      <div className="flex items-center gap-2.5 pr-8">
         <span
           className="h-2 w-2 rounded-full"
           style={{ backgroundColor: CATEGORY_COLOR[place.category] }}

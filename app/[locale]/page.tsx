@@ -1,5 +1,5 @@
 import Image from "next/image";
-import { Mail, MapPin, Phone } from "lucide-react";
+import { MapPin, Phone } from "lucide-react";
 
 import { Item, Lift, Reveal, Stagger } from "@/components/animate";
 import { AreaMap } from "@/components/area-map";
@@ -20,21 +20,19 @@ const PHONES = [
   { label: "+1 (715) 573-5576", href: "tel:+17155735576" },
   { label: "+1 (715) 581-7713", href: "tel:+17155817713" },
 ];
-const EMAIL = "madi@fischertropitel.com";
 
 // Set NEXT_PUBLIC_CAL_LINK (build variable) to switch on Cal.com booking:
 // the inline calendar section appears and casa buttons open the booking popup.
 const CAL_CONFIGURED = Boolean(process.env.NEXT_PUBLIC_CAL_LINK);
 
-// PLACEHOLDER LINKS — these point at Airbnb's homepage, not at the casas.
-// Madi had one combined listing and needs to split it into three; drop each
-// listing URL in here, in the same order as t.casas.list (Casa Cascada, Loads
-// of Toads, Casa Verde) and the buttons start working. Setting an entry to
-// null falls the button back to the contact form.
+// Madi's three Airbnb listings, in the same order as t.casas.list (Casa
+// Cascada, Loads of Toads, Casa Verde). Setting an entry to null falls that
+// casa's button back to the contact form.
 const AIRBNB_URLS: (string | null)[] = [
-  "https://www.airbnb.com",
-  "https://www.airbnb.com",
-  "https://www.airbnb.com",
+  // Casa Cascada — listed on Airbnb as "Waterfall House".
+  "https://www.airbnb.com/h/casacascadatuna",
+  "https://www.airbnb.com/h/fischertropitelloadsoftoads",
+  "https://www.airbnb.com/h/casaverdemarlin",
 ];
 
 // Search link rather than the canonical listing URL, because the profile
@@ -51,9 +49,9 @@ const GOOGLE_LISTING_URL =
  * The portrait shots (900x1200) sit in a wide card, so `object-cover` throws
  * most of the frame away; `position` biases the crop onto the house.
  *
- * porch.jpg came embedded in the revisions doc at 820x341 — Madi offered the
- * original ("let me know if you need it"); swap in the full-res file when it
- * arrives.
+ * The two porch-deck shots are the full-resolution originals of the porch
+ * photo Madi embedded in her revisions doc. That deck is shared by Casa
+ * Cascada and Loads of Toads, so both slideshows include it.
  */
 const CASA_IMAGES: {
   src: string;
@@ -62,8 +60,12 @@ const CASA_IMAGES: {
 }[][] = [
   [
     {
-      src: "/images/porch.jpg",
+      src: "/images/porch-deck-1.jpg",
       alt: "The covered porch shared by Casa Cascada and Loads of Toads, with wooden chairs facing the jungle",
+    },
+    {
+      src: "/images/porch-deck-2.jpg",
+      alt: "Looking down the shared porch toward the outdoor bar and the jungle",
     },
     {
       src: "/images/casa-cascada-door.jpg",
@@ -75,11 +77,11 @@ const CASA_IMAGES: {
       alt: "The front of Casa Cascada from the shared deck",
       position: "object-[center_62%]",
     },
-    // TODO: confirm with Madi which casa this bedroom belongs to — the two
-    // interior shots arrived unlabelled, so the alts stay property-generic.
+    // Both interior shots arrived unlabelled, so the alts describe the room
+    // rather than name a casa. Madi can still confirm which is which.
     {
       src: "/images/bedroom-1.jpg",
-      alt: "A bedroom at the casas, its window filled with jungle",
+      alt: "A bedroom with a double bed and a window onto the jungle",
     },
   ],
   [
@@ -88,10 +90,13 @@ const CASA_IMAGES: {
       alt: "The front door and windows of Loads of Toads",
       position: "object-[center_64%]",
     },
-    // TODO: as above — confirm which casa this bedroom is in.
     {
       src: "/images/bedroom-2.jpg",
-      alt: "A bedroom at the casas, with the jungle outside the window",
+      alt: "A bedroom with a double bed, clothes rail and jungle window",
+    },
+    {
+      src: "/images/porch-deck-2.jpg",
+      alt: "Looking down the shared porch toward the outdoor bar and the jungle",
     },
   ],
   [
@@ -107,13 +112,22 @@ const CASA_IMAGES: {
 ];
 
 const HIGHLIGHT_IMAGES = [
-  { src: "/images/hero.jpg", alt: "Jungle around the Fischer Tropitel casas" },
-  { src: "/images/property-2.jpg", alt: "The gated entrance to the property" },
-  // property-3 moved into Casa Verde's slideshow; this wide driveway shot
-  // keeps the carousel from repeating it.
+  // The porch photo from Madi's revisions doc, replacing the old front-of-house
+  // shot on the first carousel card.
   {
-    src: "/images/property-4.jpg",
-    alt: "The casas from the property's gravel driveway",
+    src: "/images/porch-deck-1.jpg",
+    alt: "The shared porch's outdoor bar, rocking chairs and hammock swing",
+  },
+  // Frames from the property's own drone footage, because the photo set has
+  // no fishing or hot-springs shot and the gate and driveway said nothing
+  // about either card. Swap these the day Madi sends a boat and a spring.
+  {
+    src: "/images/property-aerial.jpg",
+    alt: "The casas on their mountain, the river running past them",
+  },
+  {
+    src: "/images/waterfall-river.jpg",
+    alt: "The waterfall dropping into the river below the casas",
   },
 ];
 
@@ -326,6 +340,7 @@ export default async function Home({
                       mapsCta: t.area.mapsCta,
                       listingUrl: GOOGLE_LISTING_URL,
                       listingCta: t.area.listingCta,
+                      closeCta: t.area.closeCta,
                     }}
                   />
                 </div>
@@ -407,19 +422,6 @@ export default async function Home({
                       </a>
                     </li>
                   ))}
-                  <li className="flex items-center gap-3">
-                    <Mail
-                      className="h-4.5 w-4.5 text-forest"
-                      strokeWidth={1.75}
-                      aria-hidden
-                    />
-                    <a
-                      href={`mailto:${EMAIL}`}
-                      className="-my-2 inline-block py-2 font-medium break-all hover:underline"
-                    >
-                      {EMAIL}
-                    </a>
-                  </li>
                   <li className="flex items-start gap-3">
                     <MapPin
                       className="mt-0.5 h-4.5 w-4.5 shrink-0 text-forest"
@@ -487,20 +489,24 @@ export default async function Home({
                 </a>
               </p>
             ))}
-            <p className="mt-1">
-              <a
-                href={`mailto:${EMAIL}`}
-                className="-my-1.5 inline-block py-1.5 break-all hover:text-cream"
-              >
-                {EMAIL}
-              </a>
-            </p>
             <p className="mt-4 text-sm text-cream/45">{t.contact.location}</p>
           </div>
         </div>
         <div className="relative z-10 mx-auto mt-12 max-w-7xl px-5 sm:px-8">
-          <div className="border-t border-cream/12 py-7 text-sm text-cream/45">
-            © {new Date().getFullYear()} Fischer Tropitel. {t.footer.rights}
+          <div className="flex flex-wrap items-center justify-between gap-x-6 gap-y-1 border-t border-cream/12 py-7 text-sm text-cream/45">
+            <p>
+              © {new Date().getFullYear()} Fischer Tropitel. {t.footer.rights}
+            </p>
+            <p>
+              <a
+                href="https://kicklick.com"
+                target="_blank"
+                rel="noopener noreferrer"
+                className="-my-1.5 inline-block py-1.5 transition-colors hover:text-cream"
+              >
+                {t.footer.credit}
+              </a>
+            </p>
           </div>
         </div>
       </footer>
