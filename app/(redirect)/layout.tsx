@@ -2,6 +2,7 @@ import type { Metadata } from "next";
 
 import "../globals.css";
 import { SITE_URL, htmlClass } from "../site";
+import { Analytics } from "@/components/analytics";
 
 /**
  * Root layout for "/" only. The site's real pages live under /en/ and /es/ and
@@ -19,6 +20,9 @@ export default function RedirectRootLayout({
 }: Readonly<{ children: React.ReactNode }>) {
   return (
     <html lang="en" className={htmlClass}>
+      <head>
+        <Analytics />
+      </head>
       <body className="font-sans">{children}</body>
     </html>
   );

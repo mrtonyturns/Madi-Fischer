@@ -1,24 +1,32 @@
 /**
  * ANALYTICS — Microsoft Clarity + the KickLick dashboard's Pulse tag.
  *
- * Both are the vendors' own snippets, rendered verbatim into the exported HTML
- * rather than loaded through `next/script`. That is a deliberate choice for
- * this site rather than a shortcut:
+ * Rendered inside <head> by every root layout in the app, which is where both
+ * vendors expect their tag and where their verification checks look for it:
  *
- *   - It is a static export, and every locale is its own document reached by a
- *     full page load (the nav is in-page anchors only). So next/script's
- *     de-duplication across client-side route changes has nothing to do here.
- *   - next/script's default `afterInteractive` strategy holds a tag back until
- *     React has hydrated — on this page that is after the hero video and
+ *   app/[locale]/layout.tsx    /en/ and /es/ — the real site
+ *   app/(redirect)/layout.tsx  the bare "/" shim
+ *   app/global-not-found.tsx   the 404
+ *
+ * There are three because this app has three root layouts (a locale segment
+ * sits above the real one so <html lang> can be per-locale). A tag added to
+ * only one of them covers only part of the site, so all three import this.
+ *
+ * Both are the vendors' snippets rendered verbatim into the exported HTML,
+ * not loaded through `next/script`. That is deliberate:
+ *
+ *   - The site is a static export with no client-side route changes (the nav
+ *     is in-page anchors and each locale is its own document), so
+ *     next/script's de-duplication across navigations has nothing to do.
+ *   - next/script's default `afterInteractive` strategy holds a tag back
+ *     until React has hydrated — here that is after the hero video and
  *     MapLibre have started work. Clarity records sessions, so those first
  *     seconds are the ones worth having.
  *
- * Rendered as the first children of <body>, so the browser runs them while it
- * is still parsing the document, ahead of any content. The JSON-LD block in
- * app/[locale]/layout.tsx uses the same raw-<script> idiom.
- *
- * Clarity's bootstrap injects its own async <script> once it runs — that is
- * how the tag is designed to work, and why there is no `src` here for it.
+ * Clarity's bootstrap injects its own async <script> once it runs; that is how
+ * the tag is designed to work, and why there is no `src` for it here. Pulse
+ * keeps its `defer`, so it downloads alongside the HTML and runs once parsing
+ * is done.
  *
  * To re-point either tag, edit the two ids below and nothing else.
  */

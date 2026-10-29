@@ -38,8 +38,10 @@ export const metadata: Metadata = {
 export default function GlobalNotFound() {
   return (
     <html lang="en" className={htmlClass}>
-      <body className="font-sans">
+      <head>
         <Analytics />
+      </head>
+      <body className="font-sans">
         <main className="topo relative flex min-h-svh flex-col bg-canopy-deep text-cream">
           <div className="relative z-10 mx-auto flex w-full max-w-7xl flex-1 flex-col px-5 py-10 sm:px-8 sm:py-12">
             <a
