@@ -2,6 +2,7 @@ import type { Metadata } from "next";
 
 import "./globals.css";
 import { SITE_URL, htmlClass } from "./site";
+import { Analytics } from "@/components/analytics";
 import { Logo } from "@/components/brand";
 import { Btn } from "@/components/ui/btn";
 import { Eyebrow } from "@/components/ui/eyebrow";
@@ -38,6 +39,7 @@ export default function GlobalNotFound() {
   return (
     <html lang="en" className={htmlClass}>
       <body className="font-sans">
+        <Analytics />
         <main className="topo relative flex min-h-svh flex-col bg-canopy-deep text-cream">
           <div className="relative z-10 mx-auto flex w-full max-w-7xl flex-1 flex-col px-5 py-10 sm:px-8 sm:py-12">
             <a

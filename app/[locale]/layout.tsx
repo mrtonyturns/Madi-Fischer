@@ -2,6 +2,7 @@ import type { Metadata } from "next";
 
 import "../globals.css";
 import { SITE_URL, htmlClass } from "../site";
+import { Analytics } from "@/components/analytics";
 import { dict, locales, type Locale } from "@/lib/i18n";
 
 /**
@@ -111,6 +112,7 @@ export default async function LocaleRootLayout({
   return (
     <html lang={locale} className={htmlClass}>
       <body className="font-sans">
+        <Analytics />
         {children}
         <script
           type="application/ld+json"
